@@ -28,7 +28,8 @@ import {
   Upload,
   Database,
   Menu,
-  X
+  X,
+  FolderOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import * as XLSX from "xlsx";
@@ -868,6 +869,274 @@ export default function App() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "RegistrosAcesso");
     XLSX.writeFile(wb, "RegistrosAcesso.xlsx");
+  };
+
+  const generateProcessPDF = (c: Contributor) => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
+
+    const drawHeader = (doc: any) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("GOVERNO DO ESTADO DO PARÁ", 105, 20, { align: "center" });
+      doc.text("PREFEITURA MUNICIPAL DE TUCURUÍ", 105, 25, { align: "center" });
+      doc.text("SECRETARIA MUNICIPAL DE SAÚDE PÚBLICA", 105, 30, { align: "center" });
+      doc.text("DEPARTAMENTO DE VIGILÂNCIA SANITÁRIA DE TUCURUÍ", 105, 35, { align: "center" });
+    };
+
+    const drawFooter = (doc: any) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("End. Rua C nº 625 - Jardim Paraiso - E-mail. visatucurui@gmail.com", 105, 285, { align: "center" });
+    };
+
+    // --- Page 1: Requerimento ---
+    drawHeader(doc);
+    
+    doc.setLineWidth(0.5);
+    doc.rect(10, 40, 100, 10);
+    doc.setFontSize(14);
+    doc.text("REQUERIMENTO", 60, 47, { align: "center" });
+    doc.rect(110, 40, 90, 10);
+    doc.text("Nº DO PROCESSO:", 155, 47, { align: "center" });
+
+    doc.rect(10, 52, 190, 70);
+    doc.line(10, 62, 200, 62);
+    doc.line(10, 72, 200, 72);
+    doc.line(10, 82, 200, 82);
+    doc.line(10, 92, 200, 92);
+    doc.line(10, 102, 200, 102);
+    doc.line(10, 112, 200, 112);
+
+    doc.line(155, 72, 155, 82);
+    doc.line(60, 82, 60, 92);
+    doc.line(105, 82, 105, 92);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`O RESPONSÁVEL LEGAL: ${c.ownerName || ""}`, 12, 59);
+    doc.text(`RESIDENTE À RUA / LOGRADOURO: ${c.address || ""}`, 12, 69);
+    doc.text(`BAIRRO: ${c.neighborhood || ""}`, 12, 79);
+    doc.text(`NÚMERO: ${c.addressNumber || ""}`, 157, 79);
+    doc.text(`BLOCO:`, 12, 89);
+    doc.text(`QUADRA:`, 62, 89);
+    doc.text(`RESPONSÁVEL PELO ESTABELECIMENTO: ${c.ownerName || ""}`, 107, 89);
+    doc.text(`NOME FANSATIA: ${c.fantasyName || ""}`, 12, 99);
+    doc.text(`RAZÃO SOCIAL: ${c.name || ""}`, 12, 109);
+    doc.text(`CNPJ: ${c.document || ""}`, 12, 119);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("SERVIÇO REQUERIDO", 12, 131);
+    doc.setFont("helvetica", "normal");
+    doc.text("[   ] LICENÇA    [   ] DISPENSA    [   ] OUTROS", 100, 131);
+
+    doc.rect(10, 137, 100, 10);
+    doc.rect(110, 137, 90, 10);
+    doc.setFont("helvetica", "bold");
+    doc.text("DIA DA EMISSÃO DO DAM ______/______/ 2026", 12, 143);
+    doc.text("VALOR DO DAM R$: ____________________", 112, 143);
+
+    doc.rect(10, 149, 190, 10);
+    doc.text(`Nº DA LICENÇA DE FUNCIONAMENTO ${c.alvaraNumber || "______/__________"}        DATA DE EMISSÃO ______/______/ 2026`, 12, 155);
+
+    doc.rect(10, 162, 190, 10);
+    doc.setFontSize(14);
+    doc.text("INFORMAÇÕES GERAIS", 105, 169, { align: "center" });
+
+    doc.rect(10, 174, 190, 42);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`DESTINAÇÃO: __________________________________________________________________________________`, 12, 180);
+    doc.text(`NOME DA EMPRESA: ${c.name || "__________________________________________________________________________"}`, 12, 186);
+    doc.text(`NOME DO ESTABELECIMENTO: ${c.fantasyName || "_______________________________________________________________"}`, 12, 192);
+    doc.text(`CNPJ: ${c.document || "___________________________________"}  CPF: _____________________________________________`, 12, 198);
+    doc.text(`TÍTULO PROFISSIONAL: _________________ REGISTRO NO CONSELHO Nº: __________________________`, 12, 204);
+    doc.text(`RESPONSÁVEL TÉCNICO: ________________________________________________________________________`, 12, 210);
+
+    doc.rect(10, 218, 190, 45);
+    doc.text("Tucuruí-PA,                  de                           de           2026.", 12, 227);
+    doc.text("N. Termos,", 40, 235);
+    doc.text("P. Deferimento.", 40, 240);
+    doc.text("_______________________________________________", 105, 252, { align: "center" });
+    doc.setFont("helvetica", "bold");
+    doc.text("Responsável", 105, 257, { align: "center" });
+
+    drawFooter(doc);
+
+    // --- Page 2: Roteiro de Vistoria (1/2) ---
+    doc.addPage();
+    drawHeader(doc);
+
+    doc.rect(10, 40, 100, 10);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("ROTEIRO DE VISTORIA", 60, 47, { align: "center" });
+    doc.rect(110, 40, 90, 10);
+    doc.text("PROCESSO Nº _______/2026", 155, 47, { align: "center" });
+
+    doc.rect(10, 52, 190, 10);
+    doc.text("DADOS DO ESTABELECIMENTO", 105, 59, { align: "center" });
+
+    doc.rect(10, 64, 190, 45);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`NOME FANTASIA: ${c.fantasyName || "__________________________________________________________________________"}`, 12, 70);
+    doc.text(`RAMO DE ATIVIDADE: ${c.mainActivity || c.type || "____________________________________________________________________"}`, 12, 77);
+    doc.text(`RAZÃO SOCIAL: ${c.name || "_____________________________________________________________________________"}`, 12, 84);
+    doc.text(`NOME DO PROPRIETÁRIO: ${c.ownerName || "_______________________________________________________________"}`, 12, 91);
+    doc.text(`ENDEREÇO: ${c.address || "____________________________________"} QUADRA: ___________ Nº: ${c.addressNumber || "__________"}`, 12, 98);
+    doc.text(`BOX/LOJA/SALA: ________ BAIRRO: ${c.neighborhood || "___________________________"} TELEFONE: ${c.phone || "______________"}`, 12, 105);
+
+    doc.rect(10, 111, 190, 10);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("SITUAÇÃO GERAL DO ESTABELECIMENTO", 105, 118, { align: "center" });
+
+    doc.rect(10, 123, 190, 35);
+    doc.setFontSize(10);
+    doc.text("SITUAÇÃO NO ANO ANTERIOR:", 105, 129, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text(`LICENCIADO: (   )    LIBERADO: (   )    PENDENTE: (   )    COM DAM: (   )    NOVO: (   )`, 12, 136);
+    doc.setFont("helvetica", "bold");
+    doc.text("CATEGORIA:", 105, 143, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text("A (   )          B (   )          C (   )", 105, 149, { align: "center" });
+    doc.text("NÚMERO DE FUNCIONÁRIOS: _________", 12, 155);
+    doc.text("CARTEIRAS DE SAÚDE ATUALIZADAS: (   ) SIM  QUANTAS? _______   (   ) NÃO  QUANTAS? ________", 12, 162);
+
+    doc.rect(10, 160, 190, 10);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("ESTRUTURA FÍSICA DO ESTABELECIMENTO", 105, 167, { align: "center" });
+
+    doc.rect(10, 172, 190, 50);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    
+    doc.text("ASPECTO CONSTRUTIVO:", 12, 178);
+    doc.text("(   ) ALVENARIA  (   ) MADEIRA  (   ) OUTRO:____________________", 70, 178);
+    doc.line(10, 180, 200, 180);
+    
+    doc.text("ESGOTO SANITÁRIO:", 12, 185);
+    doc.text("(   ) TANQUE SÉPTICO    (   ) FOSSA SECA    (   ) ETE", 70, 185);
+    doc.line(10, 187, 200, 187);
+
+    doc.text("PAREDES/DIVISÓRIAS: ________________________  PISO: ____________________________", 12, 192);
+    doc.line(10, 194, 200, 194);
+
+    doc.text("FORRO:", 12, 199);
+    doc.text("(   ) LAJE  (   ) GESSO  (   ) PVC  (   ) MADEIRA  (   ) OUTRO:__________", 50, 199);
+    doc.line(10, 201, 200, 201);
+
+    doc.text("PROVENIÊNCIA DA ÁGUA:", 12, 206);
+    doc.text("(   ) REDE PÚBLICA  (   ) BICA  (   ) MINERAL  (   ) OUTRO:________", 60, 206);
+    doc.line(10, 208, 200, 208);
+
+    doc.text("PIA COM ÁGUA CORRENTE:", 12, 213);
+    doc.text("SIM(   )    NÃO(   )", 60, 213);
+    doc.line(10, 215, 200, 215);
+
+    doc.text("DESTINO DOS RESÍDUOS SÓLIDOS:", 12, 220);
+    doc.text("(   ) COLETA PÚBLICA    (   ) COLETA PRIVADA", 75, 220);
+
+    drawFooter(doc);
+
+    // --- Page 3: Roteiro de Vistoria (2/2) ---
+    doc.addPage();
+    
+    doc.rect(10, 10, 190, 40);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("OBSERVAÇÕES – ESTRUTURA FÍSICA", 105, 15, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("PAREDES: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 20, 22);
+    doc.text("PISO: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 25, 28);
+    doc.text("FORRO: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 23, 34);
+    doc.text("ÁREA EXTERNA: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 12, 40);
+    doc.text("OBS:____________________________________________________________________________________", 12, 47);
+
+    doc.rect(10, 55, 190, 45);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("OBSERVAÇÕES – HIGIENE (LIMPEZA)", 105, 60, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("AMBIENTE: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 20, 67);
+    doc.text("EQUIPAMENTOS: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 13, 73);
+    doc.text("UTENSÍLIOS: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 19, 79);
+    doc.text("MANIPULADOR: (   ) Insatisfatório  (   ) Pouco satisfatório  (   ) Satisfatório  (   ) Plenamente satisfatório", 15, 85);
+    doc.text("OBS:____________________________________________________________________________________", 12, 92);
+    doc.text("________________________________________________________________________________________", 12, 98);
+
+    doc.rect(10, 105, 190, 25);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("OBSERVAÇÕES ESPECÍFICAS", 105, 110, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("LIMPEZA DE RESERVATÓRIO: (   ) Sim  (   ) Não     ÚLTIMO SERVIÇO DIA:______/_____/______", 25, 117);
+    doc.text("CONTROLE DE PRAGAS URBANAS: (   ) Sim  (   ) Não     ÚLTIMO SERVIÇO DIA:______/_____/______", 15, 124);
+
+    doc.rect(10, 135, 190, 25);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("OBSERVAÇÕES GERAIS", 105, 140, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("__________________________________________________________________________________________", 12, 148);
+    doc.text("__________________________________________________________________________________________", 12, 155);
+
+    doc.rect(10, 165, 190, 15);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("PARECER FINAL", 105, 170, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("__________________________________________________________________________________________", 12, 178);
+
+    doc.rect(10, 185, 190, 65); // Table bounding box
+    doc.line(10, 195, 200, 195);
+    doc.line(10, 205, 200, 205);
+    doc.line(10, 215, 200, 215);
+    doc.line(10, 225, 200, 225);
+    doc.line(10, 235, 200, 235);
+    doc.line(10, 245, 200, 245);
+    
+    // Column lines
+    const col1 = 25;
+    const col2 = 65;
+    const col3 = 95;
+    const col4 = 145;
+    
+    doc.line(col1, 185, col1, 250);
+    doc.line(col2, 185, col2, 250);
+    doc.line(col3, 185, col3, 250);
+    doc.line(col4, 185, col4, 250);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Visita", 17, 191, { align: "center" });
+    doc.text("Especificação\nda Visita", 45, 189, { align: "center" });
+    doc.text("Data", 80, 191, { align: "center" });
+    doc.text("Assinaturas\ndos Fiscais", 120, 189, { align: "center" });
+    doc.text("Assinatura do Proprietário", 172, 191, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    for (let i = 1; i <= 6; i++) {
+        let y = 195 + (i * 10) - 4;
+        doc.text(`${i}ª`, 17, y, { align: "center" });
+        doc.text(`___/___/_____`, 80, y, { align: "center" });
+        doc.text(`_________________`, 120, y - 2, { align: "center" });
+        doc.text(`_________________`, 120, y + 2, { align: "center" });
+        doc.text(`______________________________`, 172, y, { align: "center" });
+    }
+
+    drawFooter(doc);
+
+    doc.save(`Processo_${(c.name || "SemNome").replace(/\s+/g, "_")}.pdf`);
   };
 
   const exportContributorCertificate = (c: Contributor) => {
@@ -1926,6 +2195,13 @@ export default function App() {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex justify-end gap-3 text-slate-400">
+                              <button 
+                                onClick={() => generateProcessPDF(c)} 
+                                className="p-2 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                title="Gerar Processo"
+                              >
+                                <FolderOpen size={18} />
+                              </button>
                               <button 
                                 onClick={() => exportContributorCertificate(c)} 
                                 className="p-2 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
