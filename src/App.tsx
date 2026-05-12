@@ -29,7 +29,8 @@ import {
   Database,
   Menu,
   X,
-  FolderOpen
+  FolderOpen,
+  UserPen
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import * as XLSX from "xlsx";
@@ -54,6 +55,7 @@ const ALL_PERMISSIONS = [
   { id: "producao", label: "Produção" },
   { id: "impressos", label: "Impressos" },
   { id: "users", label: "Usuários" },
+  { id: "alterar_cadastro", label: "Alterar Cadastro" },
   { id: "dados", label: "Gestão de Dados" },
   { id: "forms", label: "Formulários" }
 ];
@@ -191,11 +193,13 @@ export default function App() {
   const [isAddingProduction, setIsAddingProduction] = useState(false);
   const [isAddingPrint, setIsAddingPrint] = useState(false);
   const [isEditingUser, setIsEditingUser] = useState(false);
+  const [isSelfEditing, setIsSelfEditing] = useState(false);
   const [isEditingContributor, setIsEditingContributor] = useState(false);
   const [isEditingHealthWallet, setIsEditingHealthWallet] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isEditingComplaint, setIsEditingComplaint] = useState(false);
   const [isEditingProduction, setIsEditingProduction] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string, type: 'user' | 'form' | 'contributor' | 'healthWallet' | 'complaint' | 'production' | 'print' } | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editingContributor, setEditingContributor] = useState<Contributor | null>(null);
   const [editingHealthWallet, setEditingHealthWallet] = useState<HealthWallet | null>(null);
@@ -614,6 +618,7 @@ export default function App() {
 
   const openEditUser = (user: User) => {
     setEditingUser(user);
+    setIsSelfEditing(false);
     setIsEditingUser(true);
   };
 
@@ -627,7 +632,11 @@ export default function App() {
       body: JSON.stringify(editingUser),
     });
     setIsEditingUser(false);
+    setIsSelfEditing(false);
     setEditingUser(null);
+    if (user && editingUser.id === user.id) {
+       setUser({...user, name: editingUser.name, email: editingUser.email});
+    }
     fetchUsers();
   };
 
@@ -719,19 +728,39 @@ export default function App() {
     fetchForms();
   };
 
-  const deleteUser = async (id: string) => {
-    await fetch(`/api/users/${id}`, { method: "DELETE" });
-    fetchUsers();
-  };
+  const deleteUser = (id: string) => setDeleteConfirmation({ id, type: 'user' });
+  const deleteForm = (id: string) => setDeleteConfirmation({ id, type: 'form' });
+  const deleteContributor = (id: string) => setDeleteConfirmation({ id, type: 'contributor' });
 
-  const deleteForm = async (id: string) => {
-    await fetch(`/api/forms/${id}`, { method: "DELETE" });
-    fetchForms();
-  };
-
-  const deleteContributor = async (id: string) => {
-    await fetch(`/api/contributors/${id}`, { method: "DELETE" });
-    fetchContributors();
+  const confirmDelete = async () => {
+    if (!deleteConfirmation) return;
+    const { id, type } = deleteConfirmation;
+    try {
+      if (type === 'user') {
+        await fetch(`/api/users/${id}`, { method: "DELETE" });
+        fetchUsers();
+      } else if (type === 'form') {
+        await fetch(`/api/forms/${id}`, { method: "DELETE" });
+        fetchForms();
+      } else if (type === 'contributor') {
+        await fetch(`/api/contributors/${id}`, { method: "DELETE" });
+        fetchContributors();
+      } else if (type === 'healthWallet') {
+        await fetch(`/api/health-wallets/${id}`, { method: "DELETE" });
+        fetchHealthWallets();
+      } else if (type === 'complaint') {
+        await fetch(`/api/complaints/${id}`, { method: "DELETE" });
+        fetchComplaints();
+      } else if (type === 'production') {
+        await fetch(`/api/production/${id}`, { method: "DELETE" });
+        fetchProduction();
+      } else if (type === 'print') {
+        await fetch(`/api/prints/${id}`, { method: "DELETE" });
+        fetchPrintedMatter();
+      }
+    } finally {
+      setDeleteConfirmation(null);
+    }
   };
 
   const exportContributorsToExcel = () => {
@@ -1469,25 +1498,10 @@ export default function App() {
     doc.save(`Ocorrencia_${(c.reclamanteName || "Sem_Nome").replace(/\s+/g, '_')}.pdf`);
   };
 
-  const deleteHealthWallet = async (id: string) => {
-    await fetch(`/api/health-wallets/${id}`, { method: "DELETE" });
-    fetchHealthWallets();
-  };
-
-  const deleteComplaint = async (id: string) => {
-    await fetch(`/api/complaints/${id}`, { method: "DELETE" });
-    fetchComplaints();
-  };
-
-  const deleteProduction = async (id: string) => {
-    await fetch(`/api/production/${id}`, { method: "DELETE" });
-    fetchProduction();
-  };
-
-  const deletePrint = async (id: string) => {
-    await fetch(`/api/prints/${id}`, { method: "DELETE" });
-    fetchPrintedMatter();
-  };
+  const deleteHealthWallet = (id: string) => setDeleteConfirmation({ id, type: 'healthWallet' });
+  const deleteComplaint = (id: string) => setDeleteConfirmation({ id, type: 'complaint' });
+  const deleteProduction = (id: string) => setDeleteConfirmation({ id, type: 'production' });
+  const deletePrint = (id: string) => setDeleteConfirmation({ id, type: 'print' });
 
   const downloadPrint = (id: string) => {
     window.location.href = `/api/prints/download/${id}`;
@@ -1668,6 +1682,18 @@ export default function App() {
               label="Usuários" 
               active={activeTab === "users"} 
               onClick={() => setActiveTab("users")} 
+            />
+          )}
+          {user?.permissions.includes("alterar_cadastro") && (
+            <SidebarLink 
+              icon={<UserPen size={20} />} 
+              label="Alterar Cadastro" 
+              active={false} 
+              onClick={() => {
+                setEditingUser(user);
+                setIsSelfEditing(true);
+                setIsEditingUser(true);
+              }} 
             />
           )}
           {user?.permissions.includes("dados") && (
@@ -2603,7 +2629,7 @@ export default function App() {
                                 className="p-2 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                                 title="Editar"
                               >
-                                <Pencil size={18} />
+                                <SquarePen size={18} />
                               </button>
                               <button 
                                 onClick={() => deleteUser(user.id)} 
@@ -4661,7 +4687,7 @@ export default function App() {
       )}
 
       {isEditingUser && editingUser && (
-        <Modal title="Editar Registro de Acesso" onClose={() => { setIsEditingUser(false); setEditingUser(null); }}>
+        <Modal title="Editar Registro de Acesso" onClose={() => { setIsEditingUser(false); setIsSelfEditing(false); setEditingUser(null); }}>
           <form onSubmit={updateUser} className="space-y-4">
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Identificação Nominal</label>
@@ -4694,38 +4720,42 @@ export default function App() {
                 className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-inner bg-slate-50" 
               />
             </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Nível de Permissão</label>
-              <select 
-                value={editingUser.role}
-                onChange={e => setEditingUser({...editingUser, role: e.target.value})}
-                className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 cursor-pointer shadow-inner"
-              >
-                <option value="editor">Analista / Editor</option>
-                <option value="admin">Administrador Geral</option>
-              </select>
-            </div>
+            {!isSelfEditing && (
+              <>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Nível de Permissão</label>
+                  <select 
+                    value={editingUser.role}
+                    onChange={e => setEditingUser({...editingUser, role: e.target.value})}
+                    className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 cursor-pointer shadow-inner"
+                  >
+                    <option value="editor">Analista / Editor</option>
+                    <option value="admin">Administrador Geral</option>
+                  </select>
+                </div>
 
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Gerenciar Permissões de Módulo</label>
-              <div className="grid grid-cols-2 gap-3">
-                {ALL_PERMISSIONS.map(p => {
-                  const checkMarked = editingUser.role === "admin" ? true : editingUser.permissions.includes(p.id);
-                  return (
-                    <label key={p.id} className={`flex items-center gap-2 p-2 rounded-lg border border-slate-100 bg-slate-50 transition-colors ${editingUser.role === 'admin' ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-white'}`}>
-                      <input 
-                        type="checkbox" 
-                        checked={checkMarked}
-                        onChange={() => togglePermission(p.id, true)}
-                        disabled={editingUser.role === "admin"}
-                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-70"
-                      />
-                      <span className="text-xs text-slate-700 font-medium">{p.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Gerenciar Permissões de Módulo</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {ALL_PERMISSIONS.map(p => {
+                      const checkMarked = editingUser.role === "admin" ? true : editingUser.permissions.includes(p.id);
+                      return (
+                        <label key={p.id} className={`flex items-center gap-2 p-2 rounded-lg border border-slate-100 bg-slate-50 transition-colors ${editingUser.role === 'admin' ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-white'}`}>
+                          <input 
+                            type="checkbox" 
+                            checked={checkMarked}
+                            onChange={() => togglePermission(p.id, true)}
+                            disabled={editingUser.role === "admin"}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300"
+                          />
+                          <span className="text-xs font-medium text-slate-600">{p.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
             <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Salvar Alterações</button>
           </form>
@@ -4777,6 +4807,36 @@ export default function App() {
             </div>
             <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Gerar Formulário</button>
           </form>
+        </Modal>
+      )}
+
+      {deleteConfirmation && (
+        <Modal title="Confirmar Exclusão" onClose={() => setDeleteConfirmation(null)} maxWidth="max-w-sm">
+          <div className="p-4 space-y-6">
+            <div className="flex flex-col items-center justify-center text-center space-y-4 py-4">
+              <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center">
+                <Trash2 size={32} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Deseja Excluir?</h3>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setDeleteConfirmation(null)}
+                className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-colors"
+              >
+                Não, Cancelar
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Sim, Excluir
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>

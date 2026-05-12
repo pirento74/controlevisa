@@ -34,7 +34,7 @@ async function startServer() {
   app.use(express.json());
 
   // Dados em memória para simular CRUD
-  const ALL_PERMISSIONS = ["dashboard", "contribuintes", "saude", "reclamacoes", "producao", "impressos", "users", "dados", "forms"];
+  const ALL_PERMISSIONS = ["dashboard", "contribuintes", "saude", "reclamacoes", "producao", "impressos", "users", "alterar_cadastro", "dados", "forms"];
 
   let users = [
     { id: "1", name: "Administrador", email: "admin@exemplo.com", role: "admin", permissions: ALL_PERMISSIONS, password: "123" },
