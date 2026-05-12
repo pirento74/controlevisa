@@ -4811,29 +4811,24 @@ export default function App() {
       )}
 
       {deleteConfirmation && (
-        <Modal title="Confirmar Exclusão" onClose={() => setDeleteConfirmation(null)} maxWidth="max-w-sm">
-          <div className="p-4 space-y-6">
-            <div className="flex flex-col items-center justify-center text-center space-y-4 py-4">
-              <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center">
-                <Trash2 size={32} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-800">Deseja Excluir?</h3>
-              </div>
+        <Modal hideHeader onClose={() => setDeleteConfirmation(null)} maxWidth="max-w-xs">
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center">
+              <Trash2 size={24} />
             </div>
-            
-            <div className="flex gap-3">
+            <h3 className="text-lg font-bold text-slate-800">Deseja Excluir?</h3>
+            <div className="flex gap-3 w-full pt-2">
               <button 
                 onClick={() => setDeleteConfirmation(null)}
-                className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-colors"
+                className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-colors"
               >
-                Não, Cancelar
+                Não
               </button>
               <button 
                 onClick={confirmDelete}
-                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
-                Sim, Excluir
+                Sim
               </button>
             </div>
           </div>
@@ -4879,7 +4874,7 @@ function StatCard({ label, value, icon, change, changeColor }: { label: string, 
   );
 }
 
-function Modal({ title, onClose, children, maxWidth = "max-w-md" }: { title: string, onClose: () => void, children: ReactNode, maxWidth?: string }) {
+function Modal({ title, onClose, children, maxWidth = "max-w-md", hideHeader = false }: { title?: string, onClose: () => void, children: ReactNode, maxWidth?: string, hideHeader?: boolean }) {
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
       <motion.div 
@@ -4887,14 +4882,16 @@ function Modal({ title, onClose, children, maxWidth = "max-w-md" }: { title: str
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className={`bg-white w-full ${maxWidth} rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-h-[90vh] flex flex-col`}
       >
-        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 backdrop-blur-sm shrink-0">
-          <h3 className="font-bold text-slate-800 uppercase tracking-tighter text-sm flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-            {title}
-          </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors">×</button>
-        </div>
-        <div className="p-6 overflow-y-auto">
+        {!hideHeader && (
+          <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 backdrop-blur-sm shrink-0">
+            <h3 className="font-bold text-slate-800 uppercase tracking-tighter text-sm flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              {title}
+            </h3>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors">×</button>
+          </div>
+        )}
+        <div className="p-6 overflow-y-auto w-full max-h-full">
           {children}
         </div>
       </motion.div>
