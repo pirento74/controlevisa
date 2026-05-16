@@ -98,6 +98,13 @@ interface Contributor {
   licenseIssuance: string;
   observation: string;
   contact: string;
+  phone?: string;
+  ownerName?: string;
+  address?: string;
+  addressNumber?: string;
+  fantasyName?: string;
+  alvaraNumber?: string;
+  mainActivity?: string;
 }
 
 interface HealthWallet {
@@ -1908,7 +1915,7 @@ export default function App() {
                                 return acc;
                               }, {} as Record<string, number>))
                                 .map(([name, total]) => ({ name, total }))
-                                .sort((a, b) => b.total - a.total)
+                                .sort((a, b) => Number(b.total) - Number(a.total))
                                 .slice(0, 5)
                             }
                             margin={{ top: 0, right: 20, left: 20, bottom: 0 }}
@@ -1928,7 +1935,7 @@ export default function App() {
                                   return acc;
                                 }, {} as Record<string, number>))
                                   .map(([name, total]) => ({ name, total }))
-                                  .sort((a, b) => b.total - a.total)
+                                  .sort((a, b) => Number(b.total) - Number(a.total))
                                   .slice(0, 5)
                                   .map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill="#8b5cf6" />
@@ -2097,7 +2104,7 @@ export default function App() {
                                 return acc;
                               }, {} as Record<string, number>))
                                 .map(([name, total]) => ({ name, total }))
-                                .sort((a, b) => b.total - a.total)
+                                .sort((a, b) => Number(b.total) - Number(a.total))
                                 .slice(0, 5)
                             }
                             margin={{ top: 0, right: 20, left: 10, bottom: 0 }}
@@ -2114,7 +2121,7 @@ export default function App() {
                                   return acc;
                                 }, {} as Record<string, number>))
                                   .map(([name, total]) => ({ name, total }))
-                                  .sort((a, b) => b.total - a.total)
+                                  .sort((a, b) => Number(b.total) - Number(a.total))
                                   .slice(0, 5)
                                   .map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill="#14b8a6" />
