@@ -400,27 +400,26 @@ async function startServer() {
       const rows = await pool.query("SELECT * FROM gestao_de_dados LIMIT 1");
       const data = rows.rows[0];
       
-      const safeParse = (val: any) => {
+      const formatSetting = (val: any) => {
         if (!val) return [];
         if (typeof val === 'string') {
           try { 
             const parsed = JSON.parse(val); 
-            if (typeof parsed === 'string') return JSON.parse(parsed);
-            return parsed;
+            return Array.isArray(parsed) ? parsed : [];
           } catch(e) { return []; }
         }
-        return val;
+        return Array.isArray(val) ? val : [];
       };
 
       if (data) {
         res.json({
           id: data.id,
-          neighborhoods: safeParse(data.neighborhoods),
-          officers: safeParse(data.officers),
-          streets: safeParse(data.streets),
-          functions: safeParse(data.functions),
-          activities: safeParse(data.activities),
-          years: safeParse(data.years)
+          neighborhoods: formatSetting(data.neighborhoods),
+          officers: formatSetting(data.officers),
+          streets: formatSetting(data.streets),
+          functions: formatSetting(data.functions),
+          activities: formatSetting(data.activities),
+          years: formatSetting(data.years)
         });
       } else {
         res.json({});
@@ -433,29 +432,29 @@ async function startServer() {
       const existingRows = await pool.query("SELECT * FROM gestao_de_dados LIMIT 1");
       const existingData = existingRows.rows[0] || {};
       
-      const safeParse = (val: any) => {
+      const formatSetting = (val: any) => {
         if (!val) return [];
         if (typeof val === 'string') {
           try { 
             const parsed = JSON.parse(val); 
-            // if it was double-stringified, parse again (sometimes happens)
-            if (typeof parsed === 'string') return JSON.parse(parsed);
-            return parsed;
+            return Array.isArray(parsed) ? parsed : [];
           } catch(e) { return []; }
         }
-        return val;
+        return Array.isArray(val) ? val : [];
       };
 
       const saveData = {
-          neighborhoods: JSON.stringify(req.body.neighborhoods !== undefined ? req.body.neighborhoods : safeParse(existingData.neighborhoods)),
-          officers: JSON.stringify(req.body.officers !== undefined ? req.body.officers : safeParse(existingData.officers)),
-          streets: JSON.stringify(req.body.streets !== undefined ? req.body.streets : safeParse(existingData.streets)),
-          functions: JSON.stringify(req.body.functions !== undefined ? req.body.functions : safeParse(existingData.functions)),
-          activities: JSON.stringify(req.body.activities !== undefined ? req.body.activities : safeParse(existingData.activities)),
-          years: JSON.stringify(req.body.years !== undefined ? req.body.years : safeParse(existingData.years))
+          neighborhoods: JSON.stringify(req.body.neighborhoods !== undefined ? req.body.neighborhoods : formatSetting(existingData.neighborhoods)),
+          officers: JSON.stringify(req.body.officers !== undefined ? req.body.officers : formatSetting(existingData.officers)),
+          streets: JSON.stringify(req.body.streets !== undefined ? req.body.streets : formatSetting(existingData.streets)),
+          functions: JSON.stringify(req.body.functions !== undefined ? req.body.functions : formatSetting(existingData.functions)),
+          activities: JSON.stringify(req.body.activities !== undefined ? req.body.activities : formatSetting(existingData.activities)),
+          years: JSON.stringify(req.body.years !== undefined ? req.body.years : formatSetting(existingData.years))
       };
       
-      require('fs').appendFileSync('debug_api.log', JSON.stringify({ body: req.body, existing: existingData.neighborhoods, saveDataNeighborhoods: saveData.neighborhoods }) + '\n');
+      console.log('existingData.neighborhoods', existingData.neighborhoods);
+      console.log('formatSetting =>', formatSetting(existingData.neighborhoods));
+      console.log('saveData.neighborhoods', saveData.neighborhoods);
       
       let result;
       if (existingRows.rows.length > 0) {
@@ -465,12 +464,12 @@ async function startServer() {
       }
       res.json({
         id: result.id,
-        neighborhoods: safeParse(result.neighborhoods),
-        officers: safeParse(result.officers),
-        streets: safeParse(result.streets),
-        functions: safeParse(result.functions),
-        activities: safeParse(result.activities),
-        years: safeParse(result.years)
+        neighborhoods: formatSetting(result.neighborhoods),
+        officers: formatSetting(result.officers),
+        streets: formatSetting(result.streets),
+        functions: formatSetting(result.functions),
+        activities: formatSetting(result.activities),
+        years: formatSetting(result.years)
       });
     } catch(e: any) {
       res.status(500).json({ error: e.message });

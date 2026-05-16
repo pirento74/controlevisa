@@ -1,28 +1,33 @@
 import { pool } from './src/lib/db.ts';
 
-async function run() {
-  try {
-    const data2 = {
-        neighborhoods: JSON.stringify(["Centro", "Batista"]),
-        officers: JSON.stringify(["Joao"]),
-        streets: JSON.stringify([]),
-        functions: JSON.stringify([]),
-        activities: JSON.stringify([]),
-        years: JSON.stringify([]),
-    };
-    const keys = Object.keys(data2).join(', ');
-    const vals = Object.values(data2);
-    const pl = vals.map((_, i) => `$${i+1}`).join(', ');
-    // Test insert
-    await pool.query(`INSERT INTO gestao_de_dados (${keys}) VALUES (${pl})`, vals);
-    
-    const rows2 = await pool.query("SELECT * FROM gestao_de_dados LIMIT 1");
-    console.log("Without stringify:", rows2.rows[0].neighborhoods, typeof rows2.rows[0].neighborhoods);
+const toSnakeCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-  } catch(e) {
-    console.error(e);
-  } finally {
-    pool.end();
-  }
+async function update(table: string, id: string, data: any) {
+    const keys = Object.keys(data).map(toSnakeCase);
+    const values = Object.values(data);
+    const setClause = keys.map((k, i) => `${k} = $${i + 2}`).join(', ');
+    const query = `UPDATE ${table} SET ${setClause} WHERE id = $1 RETURNING *`;
+    console.log('query', query);
+    console.log('values', [id, ...values]);
+    const res = await pool.query(query, [id, ...values]);
+    return res.rows[0];
+}
+
+async function run() {
+  const result1 = await update('gestao_de_dados', 'dd602c1b-c50f-45da-9146-127da2275be9', {
+      neighborhoods: '["TEST 1", "TEST 2"]',
+      activities: '[]'
+  });
+  console.log('result 1:', result1);
+  
+  const result2 = await update('gestao_de_dados', 'dd602c1b-c50f-45da-9146-127da2275be9', {
+      neighborhoods: '["TEST 1", "TEST 2"]', // existing
+      activities: '["NEW ACT"]'
+  });
+  console.log('result 2:', result2);
+
+  const sel = await pool.query("SELECT * FROM gestao_de_dados");
+  console.log('select again:', sel.rows[0]);
+  pool.end();
 }
 run();
