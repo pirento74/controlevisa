@@ -1180,80 +1180,131 @@ export default function App() {
     });
 
     // Outer and Inner borders
-    doc.setLineWidth(2);
-    doc.rect(10, 10, 277, 190);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(3);
     doc.rect(12, 12, 273, 186);
-
-    // Header
-    doc.setFontSize(26);
-    doc.setFont("helvetica", "bold");
-    doc.text("LICENÇA DE FUNCIONAMENTO", 148.5, 40, { align: "center" });
-    
-    // Subtext
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "normal");
-    doc.text("Certificamos que o estabelecimento abaixo especificado está autorizado a funcionar", 148.5, 60, { align: "center" });
-    doc.text("neste município, de acordo com as normas da Vigilância Sanitária.", 148.5, 67, { align: "center" });
-
-    // Detail section
-    doc.setFontSize(12);
-    let yPos = 90;
-    const spacing = 12;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Razão Social:", 30, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(c.razaoSocial || c.name || "-", 80, yPos);
-
-    yPos += spacing;
-    doc.setFont("helvetica", "bold");
-    doc.text("Nome Fantasia:", 30, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(c.tradeName || "-", 80, yPos);
-
-    yPos += spacing;
-    doc.setFont("helvetica", "bold");
-    doc.text("CNPJ / CPF:", 30, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(c.cnpj || c.cpf || c.document || "-", 80, yPos);
-
-    yPos += spacing;
-    doc.setFont("helvetica", "bold");
-    doc.text("Atividade:", 30, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(c.activity || "-", 80, yPos);
-
-    yPos += spacing;
-    doc.setFont("helvetica", "bold");
-    doc.text("Endereço:", 30, yPos);
-    doc.setFont("helvetica", "normal");
-    const address = `${c.street || ''}, ${c.number || 'S/N'} ${c.block ? 'Bl ' + c.block : ''} ${c.quadra ? 'Qd ' + c.quadra : ''} - ${c.neighborhood || ''}`.replace(/,\s*-/g, ' -').replace(/^[,\s-]+/, '').trim();
-    doc.text(address || "-", 80, yPos);
-
-    yPos += spacing;
-    doc.setFont("helvetica", "bold");
-    doc.text("Processo:", 30, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(c.processNumber || "-", 80, yPos);
-
-    yPos += spacing;
-    doc.setFont("helvetica", "bold");
-    doc.text("Nº da Licença:", 30, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(c.licenseNumber || "ISENTO/PENDENTE", 80, yPos);
-
-    // Footer signature and date
-    doc.setFontSize(10);
-    const today = new Date().toLocaleDateString('pt-BR');
-    doc.text(`Data de Emissão: ${today}`, 30, 180);
-    
     doc.setLineWidth(0.5);
-    doc.line(180, 175, 260, 175);
-    doc.setFont("helvetica", "bold");
-    doc.text("Autoridade Sanitária", 220, 180, { align: "center" });
+    doc.rect(16, 16, 265, 178);
 
-    doc.save(`Licenca_Funcionamento_${c.document || c.id}.pdf`);
+    doc.setFont("times", "bold");
+    doc.setFontSize(10);
+    doc.text("GOVERNO DO ESTADO DO PARÁ", 148.5, 25, { align: "center" });
+    doc.text("PREFEITURA MUNICIPAL DE TUCURUÍ", 148.5, 30, { align: "center" });
+    doc.text("SECRETARIA MUNICIPAL DE SAÚDE PÚBLICA", 148.5, 35, { align: "center" });
+    doc.text("COORDENAÇÃO DE VIGILÂNCIA SANITÁRIA DE TUCURUÍ", 148.5, 40, { align: "center" });
+
+    doc.setFontSize(28);
+    doc.text("LICENÇA DE FUNCIONAMENTO", 148.5, 52, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Nº DO PROCESSO: ${c.processNumber || "______"}`, 20, 62);
+    doc.text(`Nº DA LICENÇA: ${c.licenseNumber || "______"}`, 277, 62, { align: "right" });
+
+    const startY = 66;
+    doc.setLineWidth(0.5);
+    doc.rect(20, startY, 257, 33);
+    doc.line(20, startY + 7, 277, startY + 7);
+    doc.line(20, startY + 14, 277, startY + 14);
+    doc.line(20, startY + 21, 277, startY + 21);
+    doc.line(20, startY + 28, 277, startY + 28);
+    doc.line(180, startY + 7, 180, startY + 33);
+
+    doc.setFontSize(14);
+    doc.text("IDENTIFICAÇÃO DO SOLICITANTE", 148.5, startY + 5.5, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.text("RAZÃO SOCIAL: ", 22, startY + 12.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.razaoSocial || c.name || "", 55, startY + 12.5);
+    
+    doc.setFont("helvetica", "bold"); doc.text("CNPJ: ", 182, startY + 12.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.cnpj || c.document || "", 195, startY + 12.5);
+
+    doc.setFont("helvetica", "bold"); doc.text("NOME DO ESTABELECIMENTO: ", 22, startY + 19.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.tradeName || c.name || "", 80, startY + 19.5);
+    
+    doc.setFont("helvetica", "bold"); doc.text("CPF: ", 182, startY + 19.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.cpf || "", 193, startY + 19.5);
+
+    doc.setFont("helvetica", "bold"); doc.text("RUA / LOGRADOURO: ", 22, startY + 26.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.street || "", 65, startY + 26.5);
+    
+    doc.setFont("helvetica", "bold"); doc.text("Nº: ", 182, startY + 26.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.number || "SN", 190, startY + 26.5);
+
+    doc.setFont("helvetica", "bold"); doc.text("BAIRRO: ", 22, startY + 31.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.neighborhood || "", 42, startY + 31.5);
+    
+    doc.setFont("helvetica", "bold"); doc.text("MUNICIPIO: ", 182, startY + 31.5);
+    doc.setFont("helvetica", "normal"); doc.text("TUCURUÍ - PA", 205, startY + 31.5);
+
+    const t2Y = 103;
+    doc.setFont("helvetica", "bold");
+    doc.rect(20, t2Y, 33, 20); // wait, want rows
+    doc.rect(20, t2Y, 257, 24); 
+    doc.line(20, t2Y + 7, 277, t2Y + 7);
+    doc.line(20, t2Y + 14, 277, t2Y + 14);
+    
+    doc.line(160, t2Y + 7, 160, t2Y + 14);
+
+    doc.setFontSize(14);
+    doc.text("IDENTIFICAÇÃO DO REPRESENTANTE LEGAL / RESPONSÁVEL TÉCNICO", 148.5, t2Y + 5.5, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.text("NOME: ", 22, t2Y + 12.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.technicalResponsible || c.responsible || "", 35, t2Y + 12.5);
+    
+    doc.setFont("helvetica", "bold"); doc.text("INSCRIÇÃO DO CONSELHO REGIONAL: ", 162, t2Y + 12.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.technicalCouncil || "", 235, t2Y + 12.5);
+
+    doc.setFont("helvetica", "bold"); doc.text("ATIVIDADE PRINCIPAL: ", 22, t2Y + 19.5);
+    doc.setFont("helvetica", "normal"); doc.text(c.activity || "", 67, t2Y + 19.5);
+    
+    const disY = 143;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    const disclaimer = "O QUAL SE COMPROMETE A OBSERVAR AS BOAS PRÁTICAS DE FABRICAÇÃO E/OU SERVIÇOS E CUMPRIR NORMAS LEGAIS\nREGULAMENTARES DESTINADAS À PROMOÇÃO, RECUPERAÇÃO E DEFESA DA SAÚDE, REFERENTE AS ATIVIDADES EXERCIDAS.\nO NÃO CUMPRIMENTO DE TAIS EXIGÊNCIAS, IMPLICARÁ NA IMPOSIÇÃO DE PENALIDADES PREVISTAS NA LEGISLAÇÃO EM VIGOR,\nRESULTANDO INCLUSIVE NO CANCELAMENTO DA LICENÇA E/OU DISPENSA.";
+    doc.text(disclaimer, 25, disY);
+
+    const todayDate = new Date();
+    const months = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
+    const dateStr = `TUCURUÍ-PA, ${todayDate.getDate()} DE ${months[todayDate.getMonth()]} DE ${todayDate.getFullYear()}`;
+    
+    doc.text(dateStr, 270, disY + 15, { align: "right" });
+
+    const sigY = 171;
+    doc.setLineWidth(0.5);
+    doc.line(30, sigY, 110, sigY);
+    doc.line(160, sigY, 260, sigY);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("TÉCNICO RESPONSÁVEL", 70, sigY + 4, { align: "center" });
+    doc.text("COORDENADOR DA VISA", 210, sigY + 4, { align: "center" });
+
+    doc.setLineWidth(1);
+    doc.roundedRect(25, 178, 115, 10, 2, 2);
+    
+    let validityStr = c.licenseIssuance || "";
+    if (c.licenseIssuance) {
+        const parts = c.licenseIssuance.split("-");
+        if (parts.length >= 3) {
+            const y = parseInt(parts[0]);
+            const m = parseInt(parts[1]);
+            const d = parseInt(parts[2]);
+            const emDate = new Date(y, m - 1, d);
+            emDate.setFullYear(emDate.getFullYear() + 1);
+            validityStr = `${emDate.getDate().toString().padStart(2, '0')} / ${months[emDate.getMonth()]} / ${emDate.getFullYear()}`;
+        }
+    }
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(`VALIDADE:    ${validityStr}`, 30, 185);
+
+    doc.roundedRect(155, 178, 115, 10, 2, 2);
+    doc.text("AFIXAR EM LOCAL VISÍVEL AO PÚBLICO", 212.5, 185, { align: "center" });
+
+    doc.save(`Licenca_Funcionamento_${c.document || c.id || "cad"}.pdf`);
   };
 
   const exportHealthWalletCertificate = (w: HealthWallet) => {
