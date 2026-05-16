@@ -82,6 +82,10 @@ CREATE TABLE IF NOT EXISTS health_wallets (
    neighborhood VARCHAR(255),
    house_number VARCHAR(50),
    upload VARCHAR(255),
+   issue_date VARCHAR(50),
+   exam_date VARCHAR(50),
+   contact VARCHAR(100),
+   observation TEXT,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -30,6 +30,7 @@ const toSnakeCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter.
 const objToCamel = (obj: any): any => {
   if (Array.isArray(obj)) return obj.map(v => objToCamel(v));
   if (obj !== null && typeof obj === 'object') {
+    if (obj instanceof Date) return obj.toISOString();
     return Object.fromEntries(
       Object.entries(obj).map(([k, v]) => {
         let cleanedValue = objToCamel(v);
@@ -188,7 +189,7 @@ async function startServer() {
   });
 
   app.put("/api/contributors/:id", async (req, res) => {
-    const { id, ...rest } = req.body;
+    const { id, createdAt, ...rest } = req.body;
     try {
       const updated = await update('contributors', req.params.id, rest);
       res.json(objToCamel(updated));
@@ -216,7 +217,7 @@ async function startServer() {
   });
 
   app.put("/api/health-wallets/:id", async (req, res) => {
-    const { id, ...rest } = req.body;
+    const { id, createdAt, ...rest } = req.body;
     try {
       const updated = await update('health_wallets', req.params.id, rest);
       res.json(objToCamel(updated));
@@ -322,7 +323,7 @@ async function startServer() {
   });
 
   app.put("/api/production/:id", async (req, res) => {
-    const { id, quantity, location, neighborhood, observation, upload, officer, activity, date, status, ...rest } = req.body;
+    const { id, quantity, location, neighborhood, observation, upload, officer, activity, date, status, createdAt, ...rest } = req.body;
     const mapped: any = {};
     if (officer !== undefined) mapped.officer = officer;
     if (activity !== undefined) mapped.activity = activity;
