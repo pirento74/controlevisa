@@ -36,7 +36,6 @@ import { motion, AnimatePresence } from "motion/react";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from "recharts";
-import { supabase } from "./lib/supabase";
 
 interface User {
   id: string;
@@ -183,7 +182,7 @@ export default function App() {
   const [productionRecords, setProductionRecords] = useState<ProductionRecord[]>([]);
   const [printedMatter, setPrintedMatter] = useState<PrintedMatter[]>([]);
   
-  const [supabaseConnected, setSupabaseConnected] = useState<boolean | null>(null);
+  const [dbConnected, setDbConnected] = useState<boolean | null>(null);
 
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isAddingForm, setIsAddingForm] = useState(false);
@@ -312,21 +311,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const checkSupabase = async () => {
+    const checkDb = async () => {
       try {
-        const { error } = await supabase.from('_dummy_table_check').select('id').limit(1);
-        // If we get an error that is NOT "relation does not exist", it might be a connection issue
-        // But even "relation does not exist" means we connected to Supabase
-        if (error && error.message.includes('FetchError')) {
-          setSupabaseConnected(false);
+        const response = await fetch('/api/settings');
+        if (response.ok) {
+          setDbConnected(true);
         } else {
-          setSupabaseConnected(true);
+          setDbConnected(false);
         }
-      } catch (e) {
-        setSupabaseConnected(false);
+      } catch (err) {
+        setDbConnected(false);
       }
     };
-    checkSupabase();
+    checkDb();
   }, []);
 
   useEffect(() => {
@@ -1716,11 +1713,11 @@ export default function App() {
 
         <div className="p-4 border-t border-slate-800">
           <div className="mb-4 px-3 py-2 rounded-lg bg-slate-800/30 border border-slate-800 flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Supabase</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Banco de Dados</span>
             <div className="flex items-center gap-1.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${supabaseConnected === null ? 'bg-amber-500 animate-pulse' : supabaseConnected ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
-              <span className={`text-[9px] font-bold uppercase tracking-widest ${supabaseConnected === null ? 'text-amber-500' : supabaseConnected ? 'text-emerald-500' : 'text-red-500'}`}>
-                {supabaseConnected === null ? 'Conectando...' : supabaseConnected ? 'Conectado' : 'Erro'}
+              <div className={`w-1.5 h-1.5 rounded-full ${dbConnected === null ? 'bg-amber-500 animate-pulse' : dbConnected ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+              <span className={`text-[9px] font-bold uppercase tracking-widest ${dbConnected === null ? 'text-amber-500' : dbConnected ? 'text-emerald-500' : 'text-red-500'}`}>
+                {dbConnected === null ? 'Conectando...' : dbConnected ? 'Conectado' : 'Erro'}
               </span>
             </div>
           </div>

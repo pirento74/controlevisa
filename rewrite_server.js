@@ -1,11 +1,13 @@
-import express from "express";
+import fs from 'fs';
+
+const serverFile = `import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import fsUtils from "fs";
-import { pool } from "./src/lib/db.ts";
-import { initDb } from "./src/lib/init_db.ts";
+import { pool } from "./src/lib/db.js";
+import { initDb } from "./src/lib/init_db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,10 +26,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-const toCamelCase = (str: string) => str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-const toSnakeCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+const toCamelCase = (str) => str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+const toSnakeCase = (str) => str.replace(/[A-Z]/g, letter => \`_\${letter.toLowerCase()}\`);
 
-const objToCamel = (obj: any): any => {
+const objToCamel = (obj) => {
   if (Array.isArray(obj)) return obj.map(v => objToCamel(v));
   if (obj !== null && typeof obj === 'object') {
     return Object.fromEntries(
@@ -42,38 +44,38 @@ const objToCamel = (obj: any): any => {
 };
 
 // Raw database query mapping utilities
-async function insert(table: string, data: any) {
+async function insert(table, data) {
     const keys = Object.keys(data).map(toSnakeCase);
     const values = Object.values(data);
-    const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
-    const query = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders}) RETURNING *`;
+    const placeholders = values.map((_, i) => \`$\${i + 1}\`).join(', ');
+    const query = \`INSERT INTO \${table} (\${keys.join(', ')}) VALUES (\${placeholders}) RETURNING *\`;
     const res = await pool.query(query, values);
     return res.rows[0];
 }
 
-async function update(table: string, id: string, data: any) {
+async function update(table, id, data) {
     const keys = Object.keys(data).map(toSnakeCase);
     const values = Object.values(data);
-    const setClause = keys.map((k, i) => `${k} = $${i + 2}`).join(', ');
-    const query = `UPDATE ${table} SET ${setClause} WHERE id = $1 RETURNING *`;
+    const setClause = keys.map((k, i) => \`\${k} = $\${i + 2}\`).join(', ');
+    const query = \`UPDATE \${table} SET \${setClause} WHERE id = $1 RETURNING *\`;
     const res = await pool.query(query, [id, ...values]);
     return res.rows[0];
 }
 
-async function selectAll(table: string, orderBy = "created_at DESC") {
-    const query = `SELECT * FROM ${table} ORDER BY ${orderBy}`;
+async function selectAll(table, orderBy = "created_at DESC") {
+    const query = \`SELECT * FROM \${table} ORDER BY \${orderBy}\`;
     const res = await pool.query(query);
     return res.rows;
 }
 
-async function selectById(table: string, id: string) {
-    const query = `SELECT * FROM ${table} WHERE id = $1`;
+async function selectById(table, id) {
+    const query = \`SELECT * FROM \${table} WHERE id = $1\`;
     const res = await pool.query(query, [id]);
     return res.rows[0];
 }
 
-async function deleteById(table: string, id: string) {
-    const query = `DELETE FROM ${table} WHERE id = $1`;
+async function deleteById(table, id) {
+    const query = \`DELETE FROM \${table} WHERE id = $1\`;
     await pool.query(query, [id]);
 }
 
@@ -112,7 +114,7 @@ async function startServer() {
     try {
       const rows = await selectAll('users');
       res.json(objToCamel(rows));
-    } catch (e: any) {
+    } catch (e) {
       res.json([{ id: "1", name: "Administrador", email: "admin@exemplo.com", role: "admin", permissions: ALL_PERMISSIONS }]);
     }
   });
@@ -127,7 +129,7 @@ async function startServer() {
     try {
       const inserted = await insert('users', newUser);
       res.status(201).json(objToCamel(inserted));
-    } catch(e: any) {
+    } catch(e) {
       res.status(500).json({ error: e.message });
     }
   });
@@ -146,7 +148,7 @@ async function startServer() {
         permissions: JSON.stringify(finalPermissions), password: payload.password
       });
       res.json(objToCamel(updated));
-    } catch(e: any) {
+    } catch(e) {
       res.status(500).json({ error: e.message });
     }
   });
@@ -155,7 +157,7 @@ async function startServer() {
     try {
       const rows = await selectAll('forms');
       res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.post("/api/forms", async (req, res) => {
@@ -164,7 +166,7 @@ async function startServer() {
     try {
       const inserted = await insert('forms', newForm);
       res.status(201).json(objToCamel(inserted));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.delete("/api/forms/:id", async (req, res) => {
@@ -173,10 +175,8 @@ async function startServer() {
   });
 
   app.get("/api/contributors", async (req, res) => {
-    try {
-      const rows = await selectAll('contributors');
-      res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    const rows = await selectAll('contributors');
+    res.json(objToCamel(rows));
   });
 
   app.post("/api/contributors", async (req, res) => {
@@ -184,7 +184,7 @@ async function startServer() {
     try {
       const inserted = await insert('contributors', rest);
       res.status(201).json(objToCamel(inserted));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.put("/api/contributors/:id", async (req, res) => {
@@ -192,7 +192,7 @@ async function startServer() {
     try {
       const updated = await update('contributors', req.params.id, rest);
       res.json(objToCamel(updated));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.delete("/api/contributors/:id", async (req, res) => {
@@ -201,10 +201,8 @@ async function startServer() {
   });
 
   app.get("/api/health-wallets", async (req, res) => {
-    try {
-      const rows = await selectAll('health_wallets');
-      res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    const rows = await selectAll('health_wallets');
+    res.json(objToCamel(rows));
   });
 
   app.post("/api/health-wallets", async (req, res) => {
@@ -212,7 +210,7 @@ async function startServer() {
     try {
       const inserted = await insert('health_wallets', rest);
       res.status(201).json(objToCamel(inserted));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.put("/api/health-wallets/:id", async (req, res) => {
@@ -220,7 +218,7 @@ async function startServer() {
     try {
       const updated = await update('health_wallets', req.params.id, rest);
       res.json(objToCamel(updated));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.delete("/api/health-wallets/:id", async (req, res) => {
@@ -229,27 +227,25 @@ async function startServer() {
   });
 
   app.get("/api/complaints", async (req, res) => {
-    try {
-      const rows = await selectAll('complaints');
-      const parsedData = rows.map((row) => {
-        let extra = {};
-        try {
-          if (row.subject && row.subject.startsWith('{')) {
-            extra = JSON.parse(row.subject);
-          } else {
-            extra = { subject: row.subject };
-          }
-        } catch {
+    const rows = await selectAll('complaints');
+    const parsedData = rows.map((row) => {
+      let extra = {};
+      try {
+        if (row.subject && row.subject.startsWith('{')) {
+          extra = JSON.parse(row.subject);
+        } else {
           extra = { subject: row.subject };
         }
-        return {
-          ...row,
-          ...extra,
-          reclamante_name: row.reporter_name
-        };
-      });
-      res.json(objToCamel(parsedData));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+      } catch {
+        extra = { subject: row.subject };
+      }
+      return {
+        ...row,
+        ...extra,
+        reclamante_name: row.reporter_name
+      };
+    });
+    res.json(objToCamel(parsedData));
   });
 
   app.post("/api/complaints", async (req, res) => {
@@ -264,12 +260,12 @@ async function startServer() {
         date: date || new Date().toISOString().split('T')[0]
       });
       res.status(201).json(objToCamel(inserted));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.put("/api/complaints/:id", async (req, res) => {
     const { id, reclamanteName, reporterName, subject, priority, status, date, createdAt, ...extraFields } = req.body;
-    const mapped: any = {};
+    const mapped = {};
     if (reclamanteName !== undefined || reporterName !== undefined) mapped.reporter_name = reclamanteName || reporterName;
     if (priority !== undefined) mapped.priority = priority;
     if (status !== undefined) mapped.status = status;
@@ -282,7 +278,7 @@ async function startServer() {
     try {
       const updated = await update('complaints', req.params.id, mapped);
       res.json(objToCamel(updated));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.delete("/api/complaints/:id", async (req, res) => {
@@ -291,19 +287,17 @@ async function startServer() {
   });
 
   app.get("/api/production", async (req, res) => {
-    try {
-      const rows = await selectAll('production_records');
-      const parsedData = rows.map((row) => {
-        let extra = {};
-        try {
-          if (row.sector && row.sector.startsWith('{')) {
-            extra = JSON.parse(row.sector);
-          }
-        } catch { }
-        return { ...row, ...extra };
-      });
-      res.json(objToCamel(parsedData));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    const rows = await selectAll('production_records');
+    const parsedData = rows.map((row) => {
+      let extra = {};
+      try {
+        if (row.sector && row.sector.startsWith('{')) {
+          extra = JSON.parse(row.sector);
+        }
+      } catch { }
+      return { ...row, ...extra };
+    });
+    res.json(objToCamel(parsedData));
   });
 
   app.post("/api/production", async (req, res) => {
@@ -318,12 +312,12 @@ async function startServer() {
         date: date || new Date().toISOString().split('T')[0]
       });
       res.status(201).json(objToCamel(inserted));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.put("/api/production/:id", async (req, res) => {
     const { id, quantity, location, neighborhood, observation, upload, officer, activity, date, status, ...rest } = req.body;
-    const mapped: any = {};
+    const mapped = {};
     if (officer !== undefined) mapped.officer = officer;
     if (activity !== undefined) mapped.activity = activity;
     if (status !== undefined) mapped.status = status;
@@ -336,7 +330,7 @@ async function startServer() {
     try {
       const updated = await update('production_records', req.params.id, mapped);
       res.json(objToCamel(updated));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.delete("/api/production/:id", async (req, res) => {
@@ -345,10 +339,8 @@ async function startServer() {
   });
 
   app.get("/api/prints", async (req, res) => {
-    try {
-      const rows = await selectAll('printed_matter');
-      res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    const rows = await selectAll('printed_matter');
+    res.json(objToCamel(rows));
   });
   
   app.post("/api/prints", upload.single("file"), async (req, res) => {
@@ -363,7 +355,7 @@ async function startServer() {
         filename: req.file.filename
       });
       res.status(201).json(objToCamel(inserted));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.get("/api/prints/download/:id", async (req, res) => {
@@ -377,7 +369,7 @@ async function startServer() {
       } else {
         res.status(404).send("Arquivo físico não encontrado no servidor.");
       }
-    } catch(e: any) { res.status(500).send("Erro interno"); }
+    } catch(e) { res.status(500).send("Erro interno"); }
   });
 
   app.delete("/api/prints/:id", async (req, res) => {
@@ -392,7 +384,7 @@ async function startServer() {
       
       await deleteById('printed_matter', req.params.id);
       res.status(204).send();
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   app.get("/api/settings", async (req, res) => {
@@ -412,7 +404,7 @@ async function startServer() {
       } else {
         res.json({});
       }
-    } catch(e: any) { res.json({}); }
+    } catch(e) { res.json({}); }
   });
 
   app.put("/api/settings", async (req, res) => {
@@ -442,7 +434,7 @@ async function startServer() {
         activities: result.activities || [],
         years: result.years || []
       });
-    } catch(e: any) {
+    } catch(e) {
       res.status(500).json({ error: e.message });
     }
   });
@@ -462,8 +454,11 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(\`Servidor rodando em http://localhost:\${PORT}\`);
   });
 }
 
 startServer();
+`
+
+fs.writeFileSync('server.ts', serverFile);
