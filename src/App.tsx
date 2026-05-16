@@ -1,4 +1,5 @@
 import React, { useState, useEffect, type FormEvent, type ReactNode } from "react";
+import { SearchableSelect } from "./components/SearchableSelect";
 import { 
   Users, 
   FileText, 
@@ -2780,17 +2781,17 @@ export default function App() {
                     </h4>
                     
                     <form onSubmit={handleAddDataManagerItem} className="flex flex-col sm:flex-row gap-3 mb-6">
-                      <select 
+                      <select
                         value={dataManagerCategory}
                         onChange={(e: any) => setDataManagerCategory(e.target.value)}
                         className="border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 min-w-[200px]"
                       >
                         <option value="neighborhoods">Bairros</option>
-                        <option value="officers">Fiscais Responsáveis</option>
-                        <option value="streets">Ruas / Logradouros</option>
-                        <option value="functions">Função</option>
-                        <option value="activities">Atividade Realizada</option>
-                        <option value="years">Anos Anteriores</option>
+                        <option value="officers">Fiscais</option>
+                        <option value="streets">Ruas</option>
+                        <option value="functions">Funções</option>
+                        <option value="activities">Atividades</option>
+                        <option value="years">Anos</option>
                       </select>
 
                       <div className="flex flex-1 gap-2">
@@ -2931,14 +2932,13 @@ export default function App() {
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Nível de Permissão</label>
-                  <select 
+                  <SearchableSelect
                     value={newUser.role}
-                    onChange={e => setNewUser({...newUser, role: e.target.value})}
+                    onChange={val => setNewUser({...newUser, role: val})}
+                    options={["editor", "admin"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="editor">Analista / Editor</option>
-                    <option value="admin">Administrador Geral</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
                 
                 <div className="mt-2">
@@ -3033,17 +3033,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Fiscais Responsáveis</label>
-                  <select 
-                    required
+                  <SearchableSelect
                     value={newProduction.officer}
-                    onChange={e => setNewProduction({...newProduction, officer: e.target.value})}
+                    onChange={val => setNewProduction({...newProduction, officer: val})}
+                    options={officers}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {officers.map((o, i) => (
-                      <option key={i} value={o}>{o}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione os fiscais..."
+                  />
                 </div>
               </div>
             </div>
@@ -3055,17 +3051,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Atividade Realizada</label>
-                  <select 
-                    required
+                  <SearchableSelect
                     value={newProduction.activity}
-                    onChange={e => setNewProduction({...newProduction, activity: e.target.value})}
+                    onChange={val => setNewProduction({...newProduction, activity: val})}
+                    options={activities}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {activities.map((a, i) => (
-                      <option key={i} value={a}>{a}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a atividade..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Quantidade</label>
@@ -3087,16 +3079,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select 
+                  <SearchableSelect
                     value={newProduction.neighborhood || ""}
-                    onChange={e => setNewProduction({...newProduction, neighborhood: e.target.value})}
+                    onChange={val => setNewProduction({...newProduction, neighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {neighborhoods.map((n, i) => (
-                      <option key={i} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -3164,17 +3153,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Fiscais Responsáveis</label>
-                  <select 
-                    required
+                  <SearchableSelect
                     value={editingProduction.officer || ""}
-                    onChange={e => setEditingProduction({...editingProduction, officer: e.target.value})}
+                    onChange={val => setEditingProduction({...editingProduction, officer: val})}
+                    options={officers}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {officers.map((o, i) => (
-                      <option key={i} value={o}>{o}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione os fiscais..."
+                  />
                 </div>
               </div>
             </div>
@@ -3186,17 +3171,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Atividade Realizada</label>
-                  <select 
-                    required
+                  <SearchableSelect
                     value={editingProduction.activity || ""}
-                    onChange={e => setEditingProduction({...editingProduction, activity: e.target.value})}
+                    onChange={val => setEditingProduction({...editingProduction, activity: val})}
+                    options={activities}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {activities.map((a, i) => (
-                      <option key={i} value={a}>{a}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a atividade..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Quantidade</label>
@@ -3218,16 +3199,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select 
+                  <SearchableSelect
                     value={editingProduction.neighborhood || ""}
-                    onChange={e => setEditingProduction({...editingProduction, neighborhood: e.target.value})}
+                    onChange={val => setEditingProduction({...editingProduction, neighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {neighborhoods.map((n, i) => (
-                      <option key={i} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -3309,16 +3287,13 @@ export default function App() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select
+                  <SearchableSelect
                     value={newComplaint.reclamanteStreet || ""}
-                    onChange={e => setNewComplaint({...newComplaint, reclamanteStreet: e.target.value})}
+                    onChange={val => setNewComplaint({...newComplaint, reclamanteStreet: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {streets.map((s, i) => (
-                      <option key={i} value={s}>{s}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Número</label>
@@ -3334,16 +3309,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select
+                  <SearchableSelect
                     value={newComplaint.reclamanteNeighborhood || ""}
-                    onChange={e => setNewComplaint({...newComplaint, reclamanteNeighborhood: e.target.value})}
+                    onChange={val => setNewComplaint({...newComplaint, reclamanteNeighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {neighborhoods.map((n, i) => (
-                      <option key={i} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -3359,16 +3331,13 @@ export default function App() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select
+                  <SearchableSelect
                     value={newComplaint.reclamadoStreet || ""}
-                    onChange={e => setNewComplaint({...newComplaint, reclamadoStreet: e.target.value})}
+                    onChange={val => setNewComplaint({...newComplaint, reclamadoStreet: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {streets.map((s, i) => (
-                      <option key={i} value={s}>{s}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Número</label>
@@ -3384,16 +3353,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select
+                  <SearchableSelect
                     value={newComplaint.reclamadoNeighborhood || ""}
-                    onChange={e => setNewComplaint({...newComplaint, reclamadoNeighborhood: e.target.value})}
+                    onChange={val => setNewComplaint({...newComplaint, reclamadoNeighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {neighborhoods.map((n, i) => (
-                      <option key={i} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -3414,15 +3380,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Nível de Prioridade</label>
-                  <select 
+                  <SearchableSelect
                     value={newComplaint.priority}
-                    onChange={e => setNewComplaint({...newComplaint, priority: e.target.value})}
+                    onChange={val => setNewComplaint({...newComplaint, priority: val})}
+                    options={["baixa", "media", "alta"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="baixa">Baixa</option>
-                    <option value="media">Média</option>
-                    <option value="alta">Alta</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Upload de Arquivos</label>
@@ -3487,16 +3451,13 @@ export default function App() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select
+                  <SearchableSelect
                     value={editingComplaint.reclamanteStreet || ""}
-                    onChange={e => setEditingComplaint({...editingComplaint, reclamanteStreet: e.target.value})}
+                    onChange={val => setEditingComplaint({...editingComplaint, reclamanteStreet: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {streets.map((s, i) => (
-                      <option key={i} value={s}>{s}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Número</label>
@@ -3512,16 +3473,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select
+                  <SearchableSelect
                     value={editingComplaint.reclamanteNeighborhood || ""}
-                    onChange={e => setEditingComplaint({...editingComplaint, reclamanteNeighborhood: e.target.value})}
+                    onChange={val => setEditingComplaint({...editingComplaint, reclamanteNeighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {neighborhoods.map((n, i) => (
-                      <option key={i} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -3537,16 +3495,13 @@ export default function App() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select
+                  <SearchableSelect
                     value={editingComplaint.reclamadoStreet || ""}
-                    onChange={e => setEditingComplaint({...editingComplaint, reclamadoStreet: e.target.value})}
+                    onChange={val => setEditingComplaint({...editingComplaint, reclamadoStreet: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {streets.map((s, i) => (
-                      <option key={i} value={s}>{s}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Número</label>
@@ -3562,16 +3517,13 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select
+                  <SearchableSelect
                     value={editingComplaint.reclamadoNeighborhood || ""}
-                    onChange={e => setEditingComplaint({...editingComplaint, reclamadoNeighborhood: e.target.value})}
+                    onChange={val => setEditingComplaint({...editingComplaint, reclamadoNeighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-red-500 bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="">Selecione...</option>
-                    {neighborhoods.map((n, i) => (
-                      <option key={i} value={n}>{n}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -3592,27 +3544,23 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Nível de Prioridade</label>
-                  <select 
+                  <SearchableSelect
                     value={editingComplaint.priority}
-                    onChange={e => setEditingComplaint({...editingComplaint, priority: e.target.value})}
+                    onChange={val => setEditingComplaint({...editingComplaint, priority: val})}
+                    options={["baixa", "media", "alta"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="baixa">Baixa</option>
-                    <option value="media">Média</option>
-                    <option value="alta">Alta</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Status</label>
-                  <select 
+                  <SearchableSelect
                     value={editingComplaint.status}
-                    onChange={e => setEditingComplaint({...editingComplaint, status: e.target.value})}
+                    onChange={val => setEditingComplaint({...editingComplaint, status: val})}
+                    options={["pendente", "em_analise", "resolvido"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="pendente">Pendente</option>
-                    <option value="em_analise">Em Análise</option>
-                    <option value="resolvido">Resolvido</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
@@ -3706,16 +3654,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div className="md:col-span-12">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Categoria</label>
-                  <select 
+                  <SearchableSelect
                     value={newHealthWallet.category}
-                    onChange={e => setNewHealthWallet({...newHealthWallet, category: e.target.value})}
+                    onChange={val => setNewHealthWallet({...newHealthWallet, category: val})}
+                    options={["Alimentação", "Serviços", "Estética", "Saúde"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="Alimentação">Alimentação</option>
-                    <option value="Serviços">Serviços</option>
-                    <option value="Estética">Estética</option>
-                    <option value="Saúde">Saúde</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
 
                 <div className="md:col-span-8">
@@ -3729,41 +3674,34 @@ export default function App() {
                 </div>
                 <div className="md:col-span-4">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Função</label>
-                  <select 
+                  <SearchableSelect
                     value={newHealthWallet.role}
-                    onChange={e => setNewHealthWallet({...newHealthWallet, role: e.target.value})}
+                    onChange={val => setNewHealthWallet({...newHealthWallet, role: val})}
+                    options={functions}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="" disabled>Selecione a Função...</option>
-                    {functions.map((f, i) => (
-                      <option key={i} value={f}>{f}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a Função..."
+                  />
                 </div>
 
                 <div className="md:col-span-8">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select 
+                  <SearchableSelect
                     value={newHealthWallet.street}
-                    onChange={e => setNewHealthWallet({...newHealthWallet, street: e.target.value})}
+                    onChange={val => setNewHealthWallet({...newHealthWallet, street: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="" disabled>Selecione a Rua...</option>
-                    {streets.map((streetName, index) => (
-                      <option key={index} value={streetName}>{streetName}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div className="md:col-span-4">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select 
+                  <SearchableSelect
                     value={newHealthWallet.neighborhood}
-                    onChange={e => setNewHealthWallet({...newHealthWallet, neighborhood: e.target.value})}
+                    onChange={val => setNewHealthWallet({...newHealthWallet, neighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="" disabled>Selecione um bairro...</option>
-                    {neighborhoods.map((n, i) => <option key={i} value={n}>{n}</option>)}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -3903,15 +3841,13 @@ export default function App() {
                 </div>
                 <div className="md:col-span-4">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Status da Carteira</label>
-                  <select 
+                  <SearchableSelect
                     value={editingHealthWallet.status}
-                    onChange={e => setEditingHealthWallet({...editingHealthWallet, status: e.target.value})}
+                    onChange={val => setEditingHealthWallet({...editingHealthWallet, status: val})}
+                    options={["ativo", "vencido", "suspenso"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="ativo">Ativo</option>
-                    <option value="vencido">Vencido</option>
-                    <option value="suspenso">Suspenso</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
               </div>
             </div>
@@ -3924,16 +3860,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div className="md:col-span-12">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Categoria</label>
-                  <select 
+                  <SearchableSelect
                     value={editingHealthWallet.category}
-                    onChange={e => setEditingHealthWallet({...editingHealthWallet, category: e.target.value})}
+                    onChange={val => setEditingHealthWallet({...editingHealthWallet, category: val})}
+                    options={["Alimentação", "Serviços", "Estética", "Saúde"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="Alimentação">Alimentação</option>
-                    <option value="Serviços">Serviços</option>
-                    <option value="Estética">Estética</option>
-                    <option value="Saúde">Saúde</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
 
                 <div className="md:col-span-8">
@@ -3947,41 +3880,34 @@ export default function App() {
                 </div>
                 <div className="md:col-span-4">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Função</label>
-                  <select 
+                  <SearchableSelect
                     value={editingHealthWallet.role || ""}
-                    onChange={e => setEditingHealthWallet({...editingHealthWallet, role: e.target.value})}
+                    onChange={val => setEditingHealthWallet({...editingHealthWallet, role: val})}
+                    options={functions}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="" disabled>Selecione a Função...</option>
-                    {functions.map((f, i) => (
-                      <option key={i} value={f}>{f}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a Função..."
+                  />
                 </div>
 
                 <div className="md:col-span-8">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select 
+                  <SearchableSelect
                     value={editingHealthWallet.street || ""}
-                    onChange={e => setEditingHealthWallet({...editingHealthWallet, street: e.target.value})}
+                    onChange={val => setEditingHealthWallet({...editingHealthWallet, street: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="" disabled>Selecione a Rua...</option>
-                    {streets.map((streetName, index) => (
-                      <option key={index} value={streetName}>{streetName}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div className="md:col-span-4">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select 
+                  <SearchableSelect
                     value={editingHealthWallet.neighborhood || ""}
-                    onChange={e => setEditingHealthWallet({...editingHealthWallet, neighborhood: e.target.value})}
+                    onChange={val => setEditingHealthWallet({...editingHealthWallet, neighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white cursor-pointer shadow-sm"
-                  >
-                    <option value="" disabled>Selecione um bairro...</option>
-                    {neighborhoods.map((n, i) => <option key={i} value={n}>{n}</option>)}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -4148,40 +4074,34 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Categoria</label>
-                  <select 
+                  <SearchableSelect
                     value={newContributor.category}
-                    onChange={e => setNewContributor({...newContributor, category: e.target.value})}
+                    onChange={val => setNewContributor({...newContributor, category: val})}
+                    options={["A", "B", "C"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione...</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Tipo Cadastro</label>
-                    <select 
-                      value={newContributor.type}
-                      onChange={e => setNewContributor({...newContributor, type: e.target.value})}
-                      className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
-                    >
-                      <option value="PJ">Pessoa Jurídica</option>
-                      <option value="PF">Pessoa Física</option>
-                    </select>
+                    <SearchableSelect
+                    value={newContributor.type}
+                    onChange={val => setNewContributor({...newContributor, type: val})}
+                    options={["PJ", "PF"]}
+                    className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
+                    placeholder="Selecione..."
+                  />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Status VISA</label>
-                    <select 
-                      value={newContributor.status}
-                      onChange={e => setNewContributor({...newContributor, status: e.target.value})}
-                      className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
-                    >
-                      <option value="regular">Regular</option>
-                      <option value="pendente">Pendente</option>
-                      <option value="irregular">Irregular</option>
-                    </select>
+                    <SearchableSelect
+                    value={newContributor.status}
+                    onChange={val => setNewContributor({...newContributor, status: val})}
+                    options={["regular", "pendente", "irregular"]}
+                    className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
+                    placeholder="Selecione..."
+                  />
                   </div>
                 </div>
                 <div>
@@ -4249,16 +4169,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="md:col-span-3">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select 
+                  <SearchableSelect
                     value={newContributor.street}
-                    onChange={e => setNewContributor({...newContributor, street: e.target.value})}
+                    onChange={val => setNewContributor({...newContributor, street: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione a Rua...</option>
-                    {streets.map((streetName, index) => (
-                      <option key={index} value={streetName}>{streetName}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Número</label>
@@ -4289,16 +4206,13 @@ export default function App() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select 
+                  <SearchableSelect
                     value={newContributor.neighborhood}
-                    onChange={e => setNewContributor({...newContributor, neighborhood: e.target.value})}
+                    onChange={val => setNewContributor({...newContributor, neighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione o Bairro...</option>
-                    {neighborhoods.map((bairro, index) => (
-                      <option key={index} value={bairro}>{bairro}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -4311,16 +4225,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Fiscais Responsáveis</label>
-                  <select 
+                  <SearchableSelect
                     value={newContributor.responsibleOfficers}
-                    onChange={e => setNewContributor({...newContributor, responsibleOfficers: e.target.value})}
+                    onChange={val => setNewContributor({...newContributor, responsibleOfficers: val})}
+                    options={officers}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione um Fiscal...</option>
-                    {officers.map((officer, index) => (
-                      <option key={index} value={officer}>{officer}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione os fiscais..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Ano Anterior</label>
@@ -4482,40 +4393,34 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Categoria</label>
-                  <select 
+                  <SearchableSelect
                     value={editingContributor.category}
-                    onChange={e => setEditingContributor({...editingContributor, category: e.target.value})}
+                    onChange={val => setEditingContributor({...editingContributor, category: val})}
+                    options={["A", "B", "C"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione...</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Tipo Cadastro</label>
-                    <select 
-                      value={editingContributor.type}
-                      onChange={e => setEditingContributor({...editingContributor, type: e.target.value})}
-                      className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
-                    >
-                      <option value="PJ">Pessoa Jurídica</option>
-                      <option value="PF">Pessoa Física</option>
-                    </select>
+                    <SearchableSelect
+                    value={editingContributor.type}
+                    onChange={val => setEditingContributor({...editingContributor, type: val})}
+                    options={["PJ", "PF"]}
+                    className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
+                    placeholder="Selecione..."
+                  />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Status VISA</label>
-                    <select 
-                      value={editingContributor.status}
-                      onChange={e => setEditingContributor({...editingContributor, status: e.target.value})}
-                      className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
-                    >
-                      <option value="regular">Regular</option>
-                      <option value="pendente">Pendente</option>
-                      <option value="irregular">Irregular</option>
-                    </select>
+                    <SearchableSelect
+                    value={editingContributor.status}
+                    onChange={val => setEditingContributor({...editingContributor, status: val})}
+                    options={["regular", "pendente", "irregular"]}
+                    className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white cursor-pointer shadow-sm"
+                    placeholder="Selecione..."
+                  />
                   </div>
                 </div>
                 <div>
@@ -4583,16 +4488,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="md:col-span-3">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Rua / Logradouro</label>
-                  <select 
+                  <SearchableSelect
                     value={editingContributor.street}
-                    onChange={e => setEditingContributor({...editingContributor, street: e.target.value})}
+                    onChange={val => setEditingContributor({...editingContributor, street: val})}
+                    options={streets}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione a Rua...</option>
-                    {streets.map((streetName, index) => (
-                      <option key={index} value={streetName}>{streetName}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione a rua..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Número</label>
@@ -4623,16 +4525,13 @@ export default function App() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Bairro</label>
-                  <select 
+                  <SearchableSelect
                     value={editingContributor.neighborhood}
-                    onChange={e => setEditingContributor({...editingContributor, neighborhood: e.target.value})}
+                    onChange={val => setEditingContributor({...editingContributor, neighborhood: val})}
+                    options={neighborhoods}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione o Bairro...</option>
-                    {neighborhoods.map((bairro, index) => (
-                      <option key={index} value={bairro}>{bairro}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione o bairro..."
+                  />
                 </div>
               </div>
             </div>
@@ -4645,16 +4544,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Fiscais Responsáveis</label>
-                  <select 
+                  <SearchableSelect
                     value={editingContributor.responsibleOfficers}
-                    onChange={e => setEditingContributor({...editingContributor, responsibleOfficers: e.target.value})}
+                    onChange={val => setEditingContributor({...editingContributor, responsibleOfficers: val})}
+                    options={officers}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione um Fiscal...</option>
-                    {officers.map((officer, index) => (
-                      <option key={index} value={officer}>{officer}</option>
-                    ))}
-                  </select>
+                    placeholder="Selecione os fiscais..."
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Ano Anterior</label>
@@ -4779,14 +4675,13 @@ export default function App() {
               <>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Nível de Permissão</label>
-                  <select 
+                  <SearchableSelect
                     value={editingUser.role}
-                    onChange={e => setEditingUser({...editingUser, role: e.target.value})}
+                    onChange={val => setEditingUser({...editingUser, role: val})}
+                    options={["editor", "admin"]}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 cursor-pointer shadow-inner"
-                  >
-                    <option value="editor">Analista / Editor</option>
-                    <option value="admin">Administrador Geral</option>
-                  </select>
+                    placeholder="Selecione..."
+                  />
                 </div>
 
                 <div>
