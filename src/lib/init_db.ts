@@ -44,6 +44,19 @@ CREATE TABLE IF NOT EXISTS contributors (
   neighborhood VARCHAR(255),
   street VARCHAR(255),
   function VARCHAR(255),
+  technical_responsible VARCHAR(255),
+  technical_council VARCHAR(255),
+  block VARCHAR(50),
+  quadra VARCHAR(50),
+  number VARCHAR(50),
+  responsible_officers VARCHAR(255),
+  previous_year VARCHAR(50),
+  dam_issuance VARCHAR(50),
+  dam_value VARCHAR(50),
+  license_number VARCHAR(100),
+  license_issuance VARCHAR(50),
+  observation TEXT,
+  contact VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -64,13 +77,18 @@ CREATE TABLE IF NOT EXISTS health_wallets (
    city VARCHAR(255),
    phone VARCHAR(50),
    photo VARCHAR(255),
+   workplace VARCHAR(255),
+   role VARCHAR(255),
+   neighborhood VARCHAR(255),
+   house_number VARCHAR(50),
+   upload VARCHAR(255),
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS complaints (
    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
    reporter_name VARCHAR(255),
-   subject VARCHAR(255),
+   subject TEXT,
    priority VARCHAR(50),
    status VARCHAR(50),
    date VARCHAR(50),
@@ -87,7 +105,7 @@ CREATE TABLE IF NOT EXISTS complaints (
 CREATE TABLE IF NOT EXISTS production_records (
    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
    activity VARCHAR(255),
-   sector VARCHAR(255),
+   sector TEXT,
    officer VARCHAR(255),
    date VARCHAR(50),
    status VARCHAR(50),
