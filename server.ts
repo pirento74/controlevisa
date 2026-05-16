@@ -399,15 +399,28 @@ async function startServer() {
     try {
       const rows = await pool.query("SELECT * FROM gestao_de_dados LIMIT 1");
       const data = rows.rows[0];
+      
+      const safeParse = (val: any) => {
+        if (!val) return [];
+        if (typeof val === 'string') {
+          try { 
+            const parsed = JSON.parse(val); 
+            if (typeof parsed === 'string') return JSON.parse(parsed);
+            return parsed;
+          } catch(e) { return []; }
+        }
+        return val;
+      };
+
       if (data) {
         res.json({
           id: data.id,
-          neighborhoods: data.neighborhoods || [],
-          officers: data.officers || [],
-          streets: data.streets || [],
-          functions: data.functions || [],
-          activities: data.activities || [],
-          years: data.years || []
+          neighborhoods: safeParse(data.neighborhoods),
+          officers: safeParse(data.officers),
+          streets: safeParse(data.streets),
+          functions: safeParse(data.functions),
+          activities: safeParse(data.activities),
+          years: safeParse(data.years)
         });
       } else {
         res.json({});
@@ -416,31 +429,48 @@ async function startServer() {
   });
 
   app.put("/api/settings", async (req, res) => {
-    const saveData = {
-        neighborhoods: JSON.stringify(req.body.neighborhoods || []),
-        officers: JSON.stringify(req.body.officers || []),
-        streets: JSON.stringify(req.body.streets || []),
-        functions: JSON.stringify(req.body.functions || []),
-        activities: JSON.stringify(req.body.activities || []),
-        years: JSON.stringify(req.body.years || [])
-    };
-    
     try {
-      const existingRows = await pool.query("SELECT id FROM gestao_de_dados LIMIT 1");
+      const existingRows = await pool.query("SELECT * FROM gestao_de_dados LIMIT 1");
+      const existingData = existingRows.rows[0] || {};
+      
+      const safeParse = (val: any) => {
+        if (!val) return [];
+        if (typeof val === 'string') {
+          try { 
+            const parsed = JSON.parse(val); 
+            // if it was double-stringified, parse again (sometimes happens)
+            if (typeof parsed === 'string') return JSON.parse(parsed);
+            return parsed;
+          } catch(e) { return []; }
+        }
+        return val;
+      };
+
+      const saveData = {
+          neighborhoods: JSON.stringify(req.body.neighborhoods !== undefined ? req.body.neighborhoods : safeParse(existingData.neighborhoods)),
+          officers: JSON.stringify(req.body.officers !== undefined ? req.body.officers : safeParse(existingData.officers)),
+          streets: JSON.stringify(req.body.streets !== undefined ? req.body.streets : safeParse(existingData.streets)),
+          functions: JSON.stringify(req.body.functions !== undefined ? req.body.functions : safeParse(existingData.functions)),
+          activities: JSON.stringify(req.body.activities !== undefined ? req.body.activities : safeParse(existingData.activities)),
+          years: JSON.stringify(req.body.years !== undefined ? req.body.years : safeParse(existingData.years))
+      };
+      
+      require('fs').appendFileSync('debug_api.log', JSON.stringify({ body: req.body, existing: existingData.neighborhoods, saveDataNeighborhoods: saveData.neighborhoods }) + '\n');
+      
       let result;
       if (existingRows.rows.length > 0) {
-         result = await update('gestao_de_dados', existingRows.rows[0].id, saveData);
+         result = await update('gestao_de_dados', existingData.id, saveData);
       } else {
          result = await insert('gestao_de_dados', saveData);
       }
       res.json({
         id: result.id,
-        neighborhoods: result.neighborhoods || [],
-        officers: result.officers || [],
-        streets: result.streets || [],
-        functions: result.functions || [],
-        activities: result.activities || [],
-        years: result.years || []
+        neighborhoods: safeParse(result.neighborhoods),
+        officers: safeParse(result.officers),
+        streets: safeParse(result.streets),
+        functions: safeParse(result.functions),
+        activities: safeParse(result.activities),
+        years: safeParse(result.years)
       });
     } catch(e: any) {
       res.status(500).json({ error: e.message });
