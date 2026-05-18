@@ -1737,7 +1737,7 @@ export default function App() {
 
   const filteredContributors = contributors.filter(c => {
     const matchEntryDate = contributorFilterEntryDate ? c.entryDate === contributorFilterEntryDate : true;
-    const matchActivity = contributorFilterActivity ? c.activity === contributorFilterActivity : true;
+    const matchActivity = contributorFilterActivity ? (c.activity || "").toLowerCase().includes(contributorFilterActivity.toLowerCase()) : true;
     const matchStatus = contributorFilterStatus ? c.status === contributorFilterStatus : true;
     return matchEntryDate && matchActivity && matchStatus;
   });
@@ -2340,14 +2340,14 @@ export default function App() {
                       className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                       title="Filtrar por Data de Entrada"
                     />
-                    <select
+                    <input 
+                      type="text"
+                      placeholder="Atividade..."
                       value={contributorFilterActivity}
                       onChange={e => setContributorFilterActivity(e.target.value)}
                       className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    >
-                      <option value="">Todas as Atividades</option>
-                      {activities.map(a => <option key={a} value={a}>{a}</option>)}
-                    </select>
+                      title="Filtrar por Atividade Principal"
+                    />
                     <select
                       value={contributorFilterStatus}
                       onChange={e => setContributorFilterStatus(e.target.value)}
