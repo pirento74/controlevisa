@@ -352,6 +352,20 @@ async function startServer() {
     } catch(e: any) { res.status(500).json({ error: e.message }); }
   });
   
+  app.post("/api/upload", upload.single("file"), (req, res) => {
+    if (!req.file) return res.status(400).json({ message: "Nenhum arquivo enviado." });
+    res.status(201).json({ filename: req.file.filename, originalName: req.file.originalname });
+  });
+
+  app.get("/api/uploads/:filename", (req, res) => {
+    const filePath = path.join(uploadDir, req.params.filename);
+    if (fsUtils.existsSync(filePath)) {
+      res.download(filePath, req.params.filename);
+    } else {
+      res.status(404).send("Arquivo físico não encontrado no servidor.");
+    }
+  });
+
   app.post("/api/prints", upload.single("file"), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: "Nenhum arquivo enviado." });
     

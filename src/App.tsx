@@ -315,6 +315,15 @@ export default function App() {
   const [newProduction, setNewProduction] = useState(INITIAL_PRODUCTION);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  const handleFileUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (!res.ok) throw new Error("Erro no upload do arquivo.");
+    const data = await res.json();
+    return data.filename;
+  };
+
   useEffect(() => {
     const handleCloseMenu = () => setIsMobileMenuOpen(false);
     window.addEventListener('close-mobile-menu', handleCloseMenu);
@@ -3045,6 +3054,7 @@ export default function App() {
             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer group relative">
               <input 
                 type="file" 
+                accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
                 onChange={e => setSelectedFile(e.target.files ? e.target.files[0] : null)}
                 className="absolute inset-0 opacity-0 cursor-pointer z-10"
               />
@@ -3175,11 +3185,31 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Upload de Arquivos</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
+                    <span>Upload de Arquivos</span>
+                    {newProduction.upload && (
+                      <span className="flex items-center gap-2">
+                         <span className="text-indigo-600 font-mono text-[10px] normal-case bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200" title={newProduction.upload}>
+                           {newProduction.upload.length > 20 ? newProduction.upload.substring(14, 30) + '...' : newProduction.upload}
+                         </span>
+                         <button type="button" onClick={() => setNewProduction({...newProduction, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                      </span>
+                    )}
+                  </label>
                   <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
                     <input 
                       type="file" 
-                      onChange={e => setNewProduction({...newProduction, upload: e.target.value})}
+                      accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                      onChange={async e => {
+                        if (e.target.files && e.target.files[0]) {
+                          try {
+                            const filename = await handleFileUpload(e.target.files[0]);
+                            setNewProduction({...newProduction, upload: filename});
+                          } catch (err) {
+                            alert("Erro no upload");
+                          }
+                        }
+                      }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                       title="Selecione arquivos" 
                     />
@@ -3295,11 +3325,31 @@ export default function App() {
                 </div>
                 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Upload de Arquivos</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
+                    <span>Upload de Arquivos</span>
+                    {editingProduction.upload && (
+                      <span className="flex items-center gap-2">
+                         <a href={`/api/uploads/${editingProduction.upload}`} target="_blank" rel="noreferrer" className="text-indigo-600 font-mono text-[10px] normal-case bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 hover:underline" title={editingProduction.upload}>
+                           {editingProduction.upload.length > 20 ? editingProduction.upload.substring(14, 30) + '...' : editingProduction.upload}
+                         </a>
+                         <button type="button" onClick={() => setEditingProduction({...editingProduction, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                      </span>
+                    )}
+                  </label>
                   <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
                     <input 
                       type="file" 
-                      onChange={e => setEditingProduction({...editingProduction, upload: e.target.value})}
+                      accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                      onChange={async e => {
+                        if (e.target.files && e.target.files[0]) {
+                          try {
+                            const filename = await handleFileUpload(e.target.files[0]);
+                            setEditingProduction({...editingProduction, upload: filename});
+                          } catch (err) {
+                            alert("Erro no upload");
+                          }
+                        }
+                      }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                       title="Selecione arquivos" 
                     />
@@ -3459,11 +3509,31 @@ export default function App() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Upload de Arquivos</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
+                    <span>Upload de Arquivos</span>
+                    {newComplaint.upload && (
+                      <span className="flex items-center gap-2">
+                         <span className="text-red-600 font-mono text-[10px] normal-case bg-red-50 px-2 py-0.5 rounded border border-red-200" title={newComplaint.upload}>
+                           {newComplaint.upload.length > 20 ? newComplaint.upload.substring(14, 30) + '...' : newComplaint.upload}
+                         </span>
+                         <button type="button" onClick={() => setNewComplaint({...newComplaint, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                      </span>
+                    )}
+                  </label>
                   <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
                     <input 
                       type="file" 
-                      onChange={e => setNewComplaint({...newComplaint, upload: e.target.value})}
+                      accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                      onChange={async e => {
+                        if (e.target.files && e.target.files[0]) {
+                          try {
+                            const filename = await handleFileUpload(e.target.files[0]);
+                            setNewComplaint({...newComplaint, upload: filename});
+                          } catch (err) {
+                            alert("Erro no upload");
+                          }
+                        }
+                      }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                       title="Selecione arquivos" 
                     />
@@ -3635,14 +3705,27 @@ export default function App() {
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
                     <span>Upload de Arquivos</span>
-                    {editingComplaint.upload && <span className="text-red-600 font-mono text-[10px] normal-case bg-red-50 px-2 py-0.5 rounded border border-red-200">{editingComplaint.upload}</span>}
+                    {editingComplaint.upload && (
+                      <span className="flex items-center gap-2">
+                         <a href={`/api/uploads/${editingComplaint.upload}`} target="_blank" rel="noreferrer" className="text-red-600 font-mono text-[10px] normal-case bg-red-50 px-2 py-0.5 rounded border border-red-200 hover:underline" title={editingComplaint.upload}>
+                           {editingComplaint.upload.length > 20 ? editingComplaint.upload.substring(14, 30) + '...' : editingComplaint.upload}
+                         </a>
+                         <button type="button" onClick={() => setEditingComplaint({...editingComplaint, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                      </span>
+                    )}
                   </label>
                   <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
                     <input 
                       type="file" 
-                      onChange={e => {
+                      accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                      onChange={async e => {
                         if(e.target.files && e.target.files[0]) {
-                          setEditingComplaint({...editingComplaint, upload: e.target.files[0].name})
+                          try {
+                            const filename = await handleFileUpload(e.target.files[0]);
+                            setEditingComplaint({...editingComplaint, upload: filename});
+                          } catch (err) {
+                            alert("Erro no upload");
+                          }
                         }
                       }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
@@ -3832,14 +3915,27 @@ export default function App() {
                 <div className="md:col-span-12">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
                     <span>Upload de Anexo</span>
-                    {newHealthWallet.upload && <span className="text-green-600 font-mono text-[10px] normal-case bg-green-50 px-2 py-0.5 rounded border border-green-200">{newHealthWallet.upload}</span>}
+                    {newHealthWallet.upload && (
+                      <span className="flex items-center gap-2">
+                         <span className="text-green-600 font-mono text-[10px] normal-case bg-green-50 px-2 py-0.5 rounded border border-green-200" title={newHealthWallet.upload}>
+                           {newHealthWallet.upload.length > 20 ? newHealthWallet.upload.substring(14, 30) + '...' : newHealthWallet.upload}
+                         </span>
+                         <button type="button" onClick={() => setNewHealthWallet({...newHealthWallet, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                      </span>
+                    )}
                   </label>
                   <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
                     <input 
                       type="file" 
-                      onChange={e => {
-                        if(e.target.files && e.target.files[0]) {
-                          setNewHealthWallet({...newHealthWallet, upload: e.target.files[0].name});
+                      accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                      onChange={async e => {
+                        if (e.target.files && e.target.files[0]) {
+                          try {
+                            const filename = await handleFileUpload(e.target.files[0]);
+                            setNewHealthWallet({...newHealthWallet, upload: filename});
+                          } catch (err) {
+                            alert("Erro no upload");
+                          }
                         }
                       }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
@@ -4038,14 +4134,27 @@ export default function App() {
                 <div className="md:col-span-12">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
                     <span>Upload de Anexo</span>
-                    {editingHealthWallet.upload && <span className="text-green-600 font-mono text-[10px] normal-case bg-green-50 px-2 py-0.5 rounded border border-green-200">{editingHealthWallet.upload}</span>}
+                    {editingHealthWallet.upload && (
+                      <span className="flex items-center gap-2">
+                         <a href={`/api/uploads/${editingHealthWallet.upload}`} target="_blank" rel="noreferrer" className="text-green-600 font-mono text-[10px] normal-case bg-green-50 px-2 py-0.5 rounded border border-green-200 hover:underline" title={editingHealthWallet.upload}>
+                           {editingHealthWallet.upload.length > 20 ? editingHealthWallet.upload.substring(14, 30) + '...' : editingHealthWallet.upload}
+                         </a>
+                         <button type="button" onClick={() => setEditingHealthWallet({...editingHealthWallet, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                      </span>
+                    )}
                   </label>
                   <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
                     <input 
                       type="file" 
-                      onChange={e => {
-                        if(e.target.files && e.target.files[0]) {
-                          setEditingHealthWallet({...editingHealthWallet, upload: e.target.files[0].name})
+                      accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                      onChange={async e => {
+                        if (e.target.files && e.target.files[0]) {
+                          try {
+                            const filename = await handleFileUpload(e.target.files[0]);
+                            setEditingHealthWallet({...editingHealthWallet, upload: filename});
+                          } catch (err) {
+                            alert("Erro no upload");
+                          }
                         }
                       }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
@@ -4366,11 +4475,36 @@ export default function App() {
 
             {/* Seção 6: Anexos */}
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-4 flex items-center gap-2">
-                <span className="w-4 h-px bg-blue-200"></span> Upload de Arquivos
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-4 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-px bg-blue-200"></span> Upload de Arquivos
+                </div>
+                {newContributor.upload && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-600 font-mono text-[10px] normal-case bg-blue-50 px-2 py-0.5 rounded border border-blue-200" title={newContributor.upload}>
+                      {newContributor.upload.length > 20 ? newContributor.upload.substring(14, 30) + '...' : newContributor.upload}
+                    </span>
+                    <button type="button" onClick={() => setNewContributor({...newContributor, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                  </div>
+                )}
               </h4>
               <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
-                <input type="file" multiple className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" title="Selecione arquivos" />
+                <input 
+                  type="file" 
+                  accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                  onChange={async e => {
+                    if (e.target.files && e.target.files[0]) {
+                      try {
+                        const filename = await handleFileUpload(e.target.files[0]);
+                        setNewContributor({...newContributor, upload: filename});
+                      } catch (err) {
+                        alert("Erro no upload");
+                      }
+                    }
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                  title="Selecione arquivos" 
+                />
                 <div className="flex flex-col items-center justify-center gap-3 pointer-events-none">
                   <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Upload className="w-5 h-5" />
@@ -4685,11 +4819,36 @@ export default function App() {
 
             {/* Seção 6: Anexos */}
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-4 flex items-center gap-2">
-                <span className="w-4 h-px bg-blue-200"></span> Upload de Arquivos
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-4 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-px bg-blue-200"></span> Upload de Arquivos
+                </div>
+                {editingContributor.upload && (
+                  <div className="flex items-center gap-2">
+                    <a href={`/api/uploads/${editingContributor.upload}`} target="_blank" rel="noreferrer" className="text-blue-600 font-mono text-[10px] normal-case bg-blue-50 px-2 py-0.5 rounded border border-blue-200 hover:underline" title={editingContributor.upload}>
+                      {editingContributor.upload.length > 20 ? editingContributor.upload.substring(14, 30) + '...' : editingContributor.upload}
+                    </a>
+                    <button type="button" onClick={() => setEditingContributor({...editingContributor, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                  </div>
+                )}
               </h4>
               <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
-                <input type="file" multiple className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" title="Selecione arquivos" />
+                <input 
+                  type="file" 
+                  accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                  onChange={async e => {
+                    if (e.target.files && e.target.files[0]) {
+                      try {
+                        const filename = await handleFileUpload(e.target.files[0]);
+                        setEditingContributor({...editingContributor, upload: filename});
+                      } catch (err) {
+                        alert("Erro no upload");
+                      }
+                    }
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                  title="Selecione arquivos" 
+                />
                 <div className="flex flex-col items-center justify-center gap-3 pointer-events-none">
                   <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Upload className="w-5 h-5" />
@@ -4806,11 +4965,31 @@ export default function App() {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Upload de Arquivos</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex justify-between items-center">
+                <span>Upload de Arquivos</span>
+                {newForm.upload && (
+                  <span className="flex items-center gap-2">
+                     <span className="text-blue-600 font-mono text-[10px] normal-case bg-blue-50 px-2 py-0.5 rounded border border-blue-200" title={newForm.upload}>
+                       {newForm.upload.length > 20 ? newForm.upload.substring(14, 30) + '...' : newForm.upload}
+                     </span>
+                     <button type="button" onClick={() => setNewForm({...newForm, upload: ""})} className="text-red-500 hover:text-red-700 font-bold" title="Remover Arquivo">x</button>
+                  </span>
+                )}
+              </label>
               <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-white hover:bg-slate-50 transition-colors cursor-pointer group relative">
                 <input 
                   type="file" 
-                  onChange={e => setNewForm({...newForm, upload: e.target.value})}
+                  accept=".jpg,.jpeg,.gif,.png,.tiff,.bmp,.pdf"
+                  onChange={async e => {
+                    if (e.target.files && e.target.files[0]) {
+                      try {
+                        const filename = await handleFileUpload(e.target.files[0]);
+                        setNewForm({...newForm, upload: filename});
+                      } catch (err) {
+                        alert("Erro no upload");
+                      }
+                    }
+                  }}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                   title="Selecione arquivos" 
                 />
