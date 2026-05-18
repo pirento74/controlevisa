@@ -98,6 +98,7 @@ interface Contributor {
   damValue: string;
   licenseNumber: string;
   licenseIssuance: string;
+  licenseValidity: string;
   observation: string;
   contact: string;
   phone?: string;
@@ -256,6 +257,7 @@ export default function App() {
     damValue: "",
     licenseNumber: "",
     licenseIssuance: "",
+    licenseValidity: "",
     observation: "",
     contact: "",
     upload: ""
@@ -822,6 +824,7 @@ export default function App() {
       "Valor DAM (R$)": c.damValue,
       "Número da Licença": c.licenseNumber,
       "Data Emissão da Licença": c.licenseIssuance,
+      "Validade da Licença": c.licenseValidity,
       "Observação": c.observation
     }));
     
@@ -1347,15 +1350,18 @@ export default function App() {
     doc.setLineWidth(1);
     doc.roundedRect(40, 175, 105, 10, 2, 2);
     
-    let validityStr = c.licenseIssuance || "";
-    if (c.licenseIssuance) {
-        const parts = c.licenseIssuance.split("-");
+    let validityStr = "";
+    const targetDateStr = c.licenseValidity || c.licenseIssuance;
+    if (targetDateStr) {
+        const parts = targetDateStr.split("-");
         if (parts.length >= 3) {
             const y = parseInt(parts[0]);
             const m = parseInt(parts[1]);
             const d = parseInt(parts[2]);
             const emDate = new Date(y, m - 1, d);
-            emDate.setFullYear(emDate.getFullYear() + 1);
+            if (!c.licenseValidity) {
+                emDate.setFullYear(emDate.getFullYear() + 1); // fallback if no validity provided
+            }
             validityStr = `${emDate.getDate().toString().padStart(2, '0')} / ${months[emDate.getMonth()]} / ${emDate.getFullYear()}`;
         }
     }
@@ -4474,6 +4480,15 @@ export default function App() {
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm" 
                   />
                 </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Validade da Licença</label>
+                  <input 
+                    type="date"
+                    value={newContributor.licenseValidity}
+                    onChange={e => setNewContributor({...newContributor, licenseValidity: e.target.value})}
+                    className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm" 
+                  />
+                </div>
                 <div className="md:col-span-3">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Observação</label>
                   <textarea 
@@ -4816,6 +4831,15 @@ export default function App() {
                     type="date"
                     value={editingContributor.licenseIssuance}
                     onChange={e => setEditingContributor({...editingContributor, licenseIssuance: e.target.value})}
+                    className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Validade da Licença</label>
+                  <input 
+                    type="date"
+                    value={editingContributor.licenseValidity}
+                    onChange={e => setEditingContributor({...editingContributor, licenseValidity: e.target.value})}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm" 
                   />
                 </div>
