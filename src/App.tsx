@@ -1,5 +1,6 @@
 import React, { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import { SearchableSelect } from "./components/SearchableSelect";
+import { SearchableMultiSelect } from "./components/SearchableMultiSelect";
 import { 
   Users, 
   FileText, 
@@ -256,7 +257,8 @@ export default function App() {
     licenseNumber: "",
     licenseIssuance: "",
     observation: "",
-    contact: ""
+    contact: "",
+    upload: ""
   };
 
   const INITIAL_HEALTH_WALLET: Omit<HealthWallet, 'id'> = {
@@ -556,11 +558,16 @@ export default function App() {
 
   const addContributor = async (e: FormEvent) => {
     e.preventDefault();
-    await fetch("/api/contributors", {
+    const res = await fetch("/api/contributors", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newContributor),
     });
+    if (!res.ok) {
+      const txt = await res.text();
+      alert("Erro ao adicionar: " + txt);
+      return;
+    }
     setNewContributor(INITIAL_CONTRIBUTOR);
     setIsAddingContributor(false);
     fetchContributors();
@@ -666,11 +673,16 @@ export default function App() {
     e.preventDefault();
     if (!editingContributor) return;
 
-    await fetch(`/api/contributors/${editingContributor.id}`, {
+    const res = await fetch(`/api/contributors/${editingContributor.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editingContributor),
     });
+    if (!res.ok) {
+      const txt = await res.text();
+      alert("Erro ao atualizar: " + txt);
+      return;
+    }
     setIsEditingContributor(false);
     setEditingContributor(null);
     fetchContributors();
@@ -3043,7 +3055,7 @@ export default function App() {
               </div>
             </div>
 
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Confirmar Acesso</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Confirmar Acesso</button>
           </form>
         </Modal>
       )}
@@ -3227,7 +3239,7 @@ export default function App() {
               </div>
             </div>
 
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Protocolar Produção</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Protocolar Produção</button>
           </form>
         </Modal>
       )}
@@ -3367,7 +3379,7 @@ export default function App() {
               </div>
             </div>
             
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Salvar Alterações</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Salvar Alterações</button>
           </form>
         </Modal>
       )}
@@ -3551,7 +3563,7 @@ export default function App() {
               </div>
             </div>
 
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Registrar Ocorrência</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Registrar Ocorrência</button>
           </form>
         </Modal>
       )}
@@ -3745,7 +3757,7 @@ export default function App() {
               </div>
             </div>
 
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Atualizar Protocolo</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Atualizar Protocolo</button>
           </form>
         </Modal>
       )}
@@ -3954,7 +3966,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Emitir Carteira</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Emitir Carteira</button>
           </form>
         </Modal>
       )}
@@ -4173,7 +4185,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Salvar Alterações</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Salvar Alterações</button>
           </form>
         </Modal>
       )}
@@ -4404,12 +4416,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Fiscais Responsáveis</label>
-                  <SearchableSelect
+                  <SearchableMultiSelect
                     value={newContributor.responsibleOfficers}
                     onChange={val => setNewContributor({...newContributor, responsibleOfficers: val})}
                     options={officers}
+                    maxSelections={10}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                    placeholder="Selecione os fiscais..."
+                    placeholder="Selecione até 10 fiscais..."
                   />
                 </div>
                 <div>
@@ -4517,7 +4530,7 @@ export default function App() {
               </div>
             </div>
 
-            <button className="w-full bg-slate-900 text-white py-4 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl active:scale-[0.99]">Finalizar Cadastro de Contribuinte</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-4 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl active:scale-[0.99]">Finalizar Cadastro de Contribuinte</button>
           </form>
         </Modal>
       )}
@@ -4748,12 +4761,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Fiscais Responsáveis</label>
-                  <SearchableSelect
+                  <SearchableMultiSelect
                     value={editingContributor.responsibleOfficers}
                     onChange={val => setEditingContributor({...editingContributor, responsibleOfficers: val})}
                     options={officers}
+                    maxSelections={10}
                     className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm cursor-pointer"
-                    placeholder="Selecione os fiscais..."
+                    placeholder="Selecione até 10 fiscais..."
                   />
                 </div>
                 <div>
@@ -4861,7 +4875,7 @@ export default function App() {
               </div>
             </div>
 
-            <button className="w-full bg-blue-600 text-white py-4 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl active:scale-[0.99]">Salvar Alterações do Contribuinte</button>
+            <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl active:scale-[0.99]">Salvar Alterações do Contribuinte</button>
           </form>
         </Modal>
       )}
@@ -4936,7 +4950,7 @@ export default function App() {
               </>
             )}
 
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Salvar Alterações</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Salvar Alterações</button>
           </form>
         </Modal>
       )}
@@ -5004,7 +5018,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <button className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Gerar Formulário</button>
+            <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest mt-6 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98]">Gerar Formulário</button>
           </form>
         </Modal>
       )}
