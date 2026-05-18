@@ -193,6 +193,12 @@ export default function App() {
   const [productionFilterDate, setProductionFilterDate] = useState("");
   const [productionFilterName, setProductionFilterName] = useState("");
   const [productionFilterActivity, setProductionFilterActivity] = useState("");
+  const [contributorFilterEntryDate, setContributorFilterEntryDate] = useState("");
+  const [contributorFilterActivity, setContributorFilterActivity] = useState("");
+  const [contributorFilterStatus, setContributorFilterStatus] = useState("");
+  const [healthWalletFilterIssueDate, setHealthWalletFilterIssueDate] = useState("");
+  const [healthWalletFilterExamDate, setHealthWalletFilterExamDate] = useState("");
+  const [healthWalletFilterExpiration, setHealthWalletFilterExpiration] = useState("");
   const [printedMatter, setPrintedMatter] = useState<PrintedMatter[]>([]);
   
   const [dbConnected, setDbConnected] = useState<boolean | null>(null);
@@ -1729,6 +1735,20 @@ export default function App() {
     return matchDate && matchName && matchActivity;
   });
 
+  const filteredContributors = contributors.filter(c => {
+    const matchEntryDate = contributorFilterEntryDate ? c.entryDate === contributorFilterEntryDate : true;
+    const matchActivity = contributorFilterActivity ? c.activity === contributorFilterActivity : true;
+    const matchStatus = contributorFilterStatus ? c.status === contributorFilterStatus : true;
+    return matchEntryDate && matchActivity && matchStatus;
+  });
+
+  const filteredHealthWallets = healthWallets.filter(w => {
+    const matchIssueDate = healthWalletFilterIssueDate ? w.issueDate === healthWalletFilterIssueDate : true;
+    const matchExamDate = healthWalletFilterExamDate ? w.examDate === healthWalletFilterExamDate : true;
+    const matchExpiration = healthWalletFilterExpiration ? w.expiration === healthWalletFilterExpiration : true;
+    return matchIssueDate && matchExamDate && matchExpiration;
+  });
+
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
       {/* Mobile overlay */}
@@ -2309,11 +2329,37 @@ export default function App() {
                 exit={{ opacity: 0, y: -10 }}
                 className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-0"
               >
-                <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                  <h3 className="font-semibold text-slate-700 underline decoration-blue-500/30 underline-offset-4">Gestão de Contribuintes</h3>
-                  <div className="flex gap-2">
+                <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-50/50 gap-4">
+                  <h3 className="font-semibold text-slate-700 underline decoration-blue-500/30 underline-offset-4 shrink-0">Gestão de Contribuintes</h3>
+                  
+                  <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <input 
+                      type="date"
+                      value={contributorFilterEntryDate}
+                      onChange={e => setContributorFilterEntryDate(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      title="Filtrar por Data de Entrada"
+                    />
+                    <select
+                      value={contributorFilterActivity}
+                      onChange={e => setContributorFilterActivity(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      <option value="">Todas as Atividades</option>
+                      {activities.map(a => <option key={a} value={a}>{a}</option>)}
+                    </select>
+                    <select
+                      value={contributorFilterStatus}
+                      onChange={e => setContributorFilterStatus(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      <option value="">Todos os Status VISA</option>
+                      <option value="regular">Regular</option>
+                      <option value="pendente">Pendente</option>
+                      <option value="irregular">Irregular</option>
+                    </select>
                     <button className="text-xs px-3 py-1.5 border border-slate-200 rounded hover:bg-white transition-colors font-medium text-slate-600">Exportar PDF</button>
-                    <button onClick={exportContributorsToExcel} className="text-xs px-3 py-1.5 border border-green-200 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors font-medium flex items-center gap-1">
+                    <button onClick={exportContributorsToExcel} className="text-xs px-3 py-1.5 border border-green-200 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors font-medium flex items-center justify-center gap-1">
                       Exportar Excel
                     </button>
                   </div>
@@ -2331,7 +2377,7 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-600">
-                      {contributors.map(c => (
+                      {filteredContributors.map(c => (
                         <tr key={c.id} className="hover:bg-blue-50/30 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex flex-col">
@@ -2398,10 +2444,31 @@ export default function App() {
                 exit={{ opacity: 0, y: -10 }}
                 className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-0"
               >
-                <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                  <h3 className="font-semibold text-slate-700 underline decoration-green-500/30 underline-offset-4">Gestão de Carteiras de Saúde</h3>
-                  <div className="flex gap-2">
-                    <button onClick={exportHealthWalletsToExcel} className="text-xs px-3 py-1.5 border border-green-200 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors font-medium flex items-center gap-1">
+                <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-50/50 gap-4">
+                  <h3 className="font-semibold text-slate-700 underline decoration-green-500/30 underline-offset-4 shrink-0">Gestão de Carteiras de Saúde</h3>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <input 
+                      type="date"
+                      value={healthWalletFilterIssueDate}
+                      onChange={e => setHealthWalletFilterIssueDate(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                      title="Filtrar por Data de Emissão"
+                    />
+                    <input 
+                      type="date"
+                      value={healthWalletFilterExamDate}
+                      onChange={e => setHealthWalletFilterExamDate(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                      title="Filtrar por Data de Exame"
+                    />
+                    <input 
+                      type="date"
+                      value={healthWalletFilterExpiration}
+                      onChange={e => setHealthWalletFilterExpiration(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                      title="Filtrar por Vencimento"
+                    />
+                    <button onClick={exportHealthWalletsToExcel} className="text-xs px-3 py-1.5 border border-green-200 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors font-medium flex items-center justify-center gap-1">
                       Exportar Excel
                     </button>
                   </div>
@@ -2419,7 +2486,7 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-600">
-                      {healthWallets.map(w => (
+                      {filteredHealthWallets.map(w => (
                         <tr key={w.id} className="hover:bg-green-50/30 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex flex-col">
