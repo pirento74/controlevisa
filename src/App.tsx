@@ -188,6 +188,9 @@ export default function App() {
   const [healthWallets, setHealthWallets] = useState<HealthWallet[]>([]);
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [productionRecords, setProductionRecords] = useState<ProductionRecord[]>([]);
+  const [productionFilterDate, setProductionFilterDate] = useState("");
+  const [productionFilterName, setProductionFilterName] = useState("");
+  const [productionFilterActivity, setProductionFilterActivity] = useState("");
   const [printedMatter, setPrintedMatter] = useState<PrintedMatter[]>([]);
   
   const [dbConnected, setDbConnected] = useState<boolean | null>(null);
@@ -863,7 +866,14 @@ export default function App() {
   };
 
   const exportProductionToExcel = () => {
-    const data = productionRecords.map(p => ({
+    const dataToExport = productionRecords.filter(p => {
+      const matchDate = productionFilterDate ? p.date === productionFilterDate : true;
+      const matchName = productionFilterName ? p.officer.toLowerCase().includes(productionFilterName.toLowerCase()) : true;
+      const matchActivity = productionFilterActivity ? p.activity.toLowerCase().includes(productionFilterActivity.toLowerCase()) : true;
+      return matchDate && matchName && matchActivity;
+    });
+
+    const data = dataToExport.map(p => ({
       "ID": p.id,
       "Data": p.date,
       "Fiscal": p.officer,
@@ -1180,11 +1190,43 @@ export default function App() {
       format: "a4"
     });
 
-    // Outer and Inner borders
-    doc.setLineWidth(3);
+    // Borda estilo barroco trabalhada
+    const drawCorner = (x: number, y: number, isRight: boolean, isBottom: boolean) => {
+      const rx = isRight ? x - 15 : x;
+      const ry = isBottom ? y - 15 : y;
+      
+      doc.setLineWidth(1);
+      doc.setFillColor(255, 255, 255);
+      doc.rect(rx, ry, 15, 15, "FD");
+      
+      doc.setLineWidth(0.3);
+      doc.rect(rx + 2, ry + 2, 11, 11);
+      
+      doc.circle(rx + 7.5, ry + 7.5, 3.5);
+      
+      doc.setFillColor(0, 0, 0);
+      doc.circle(rx + 7.5, ry + 7.5, 1.5, "F");
+
+      for(let i=1; i<=6; i++) {
+        doc.circle(rx + (isRight ? -3*i : 15 + 3*i), ry + 7.5, 1.2 - i*0.15, "F");
+        doc.circle(rx + 7.5, ry + (isBottom ? -3*i : 15 + 3*i), 1.2 - i*0.15, "F");
+      }
+    };
+
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(2.5);
+    doc.rect(10, 10, 277, 190);
+    doc.setLineWidth(0.3);
     doc.rect(12, 12, 273, 186);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(1);
     doc.rect(16, 16, 265, 178);
+    doc.setLineWidth(0.3);
+    doc.rect(17.5, 17.5, 262, 175);
+
+    drawCorner(16, 16, false, false);
+    drawCorner(281, 16, true, false);
+    drawCorner(16, 194, false, true);
+    drawCorner(281, 194, true, true);
 
     doc.setFont("times", "bold");
     doc.setFontSize(10);
@@ -1240,7 +1282,6 @@ export default function App() {
 
     const t2Y = 103;
     doc.setFont("helvetica", "bold");
-    doc.rect(20, t2Y, 33, 20); // wait, want rows
     doc.rect(20, t2Y, 257, 24); 
     doc.line(20, t2Y + 7, 277, t2Y + 7);
     doc.line(20, t2Y + 14, 277, t2Y + 14);
@@ -1260,7 +1301,7 @@ export default function App() {
     doc.setFont("helvetica", "bold"); doc.text("ATIVIDADE PRINCIPAL: ", 22, t2Y + 19.5);
     doc.setFont("helvetica", "normal"); doc.text(c.activity || "", 67, t2Y + 19.5);
     
-    const disY = 143;
+    const disY = 138;
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     const disclaimer = "O QUAL SE COMPROMETE A OBSERVAR AS BOAS PRÁTICAS DE FABRICAÇÃO E/OU SERVIÇOS E CUMPRIR NORMAS LEGAIS\nREGULAMENTARES DESTINADAS À PROMOÇÃO, RECUPERAÇÃO E DEFESA DA SAÚDE, REFERENTE AS ATIVIDADES EXERCIDAS.\nO NÃO CUMPRIMENTO DE TAIS EXIGÊNCIAS, IMPLICARÁ NA IMPOSIÇÃO DE PENALIDADES PREVISTAS NA LEGISLAÇÃO EM VIGOR,\nRESULTANDO INCLUSIVE NO CANCELAMENTO DA LICENÇA E/OU DISPENSA.";
@@ -1272,7 +1313,7 @@ export default function App() {
     
     doc.text(dateStr, 270, disY + 15, { align: "right" });
 
-    const sigY = 171;
+    const sigY = 166;
     doc.setLineWidth(0.5);
     doc.line(30, sigY, 110, sigY);
     doc.line(160, sigY, 260, sigY);
@@ -1283,7 +1324,7 @@ export default function App() {
     doc.text("COORDENADOR DA VISA", 210, sigY + 4, { align: "center" });
 
     doc.setLineWidth(1);
-    doc.roundedRect(25, 178, 115, 10, 2, 2);
+    doc.roundedRect(40, 175, 105, 10, 2, 2);
     
     let validityStr = c.licenseIssuance || "";
     if (c.licenseIssuance) {
@@ -1300,10 +1341,10 @@ export default function App() {
 
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text(`VALIDADE:    ${validityStr}`, 30, 185);
+    doc.text(`VALIDADE:    ${validityStr}`, 43, 182);
 
-    doc.roundedRect(155, 178, 115, 10, 2, 2);
-    doc.text("AFIXAR EM LOCAL VISÍVEL AO PÚBLICO", 212.5, 185, { align: "center" });
+    doc.roundedRect(150, 175, 105, 10, 2, 2);
+    doc.text("AFIXAR EM LOCAL VISÍVEL AO PÚBLICO", 202.5, 182, { align: "center" });
 
     doc.save(`Licenca_Funcionamento_${c.document || c.id || "cad"}.pdf`);
   };
@@ -1653,6 +1694,13 @@ export default function App() {
       </div>
     );
   }
+
+  const filteredProductionRecords = productionRecords.filter(p => {
+    const matchDate = productionFilterDate ? p.date === productionFilterDate : true;
+    const matchName = productionFilterName ? p.officer.toLowerCase().includes(productionFilterName.toLowerCase()) : true;
+    const matchActivity = productionFilterActivity ? p.activity.toLowerCase().includes(productionFilterActivity.toLowerCase()) : true;
+    return matchDate && matchName && matchActivity;
+  });
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
@@ -2491,10 +2539,32 @@ export default function App() {
                 exit={{ opacity: 0, y: -10 }}
                 className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-0"
               >
-                <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                  <h3 className="font-semibold text-slate-700 underline decoration-indigo-500/30 underline-offset-4">Relatório de Atividades e Produção</h3>
-                  <div className="flex gap-2">
-                    <button onClick={exportProductionToExcel} className="text-xs px-3 py-1.5 border border-green-200 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors font-medium flex items-center gap-1">
+                <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-50/50 gap-4">
+                  <h3 className="font-semibold text-slate-700 underline decoration-indigo-500/30 underline-offset-4 shrink-0">Relatório de Atividades e Produção</h3>
+                  
+                  <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <input 
+                      type="date"
+                      value={productionFilterDate}
+                      onChange={e => setProductionFilterDate(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                      title="Filtrar por Data"
+                    />
+                    <input 
+                      type="text"
+                      placeholder="Filtrar por Nome"
+                      value={productionFilterName}
+                      onChange={e => setProductionFilterName(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white min-w-[150px]"
+                    />
+                    <input 
+                      type="text"
+                      placeholder="Filtrar por Atividade"
+                      value={productionFilterActivity}
+                      onChange={e => setProductionFilterActivity(e.target.value)}
+                      className="border border-slate-200 rounded px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white min-w-[150px]"
+                    />
+                    <button onClick={exportProductionToExcel} className="text-xs px-3 py-1.5 border border-green-200 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors font-medium flex items-center justify-center gap-1 shrink-0">
                       Exportar Excel
                     </button>
                   </div>
@@ -2512,7 +2582,7 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-600">
-                      {productionRecords.map(p => (
+                      {filteredProductionRecords.map(p => (
                         <tr key={p.id} className="hover:bg-indigo-50/30 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex flex-col">
