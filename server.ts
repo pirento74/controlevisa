@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
@@ -90,6 +91,15 @@ async function startServer() {
   app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
     try {
+      // Create admin automatically before checking if empty
+      const userCheck = await pool.query("SELECT * FROM users");
+      if (userCheck.rows.length === 0) {
+         await pool.query(
+          "INSERT INTO users (name, email, role, password, permissions) VALUES ($1, $2, $3, $4, $5)",
+          ['Administrador', 'admin@exemplo.com', 'admin', '123', JSON.stringify(ALL_PERMISSIONS)]
+         );
+      }
+
       const { rows } = await pool.query("SELECT * FROM users WHERE email = $1 AND password = $2", [email, password]);
       if (rows && rows.length > 0) {
         res.json({ success: true, user: objToCamel(rows[0]) });
@@ -97,14 +107,15 @@ async function startServer() {
         if (email === "admin@exemplo.com" && password === "123") {
           res.json({ success: true, user: { id: "1", name: "Administrador", email: "admin@exemplo.com", role: "admin", permissions: ALL_PERMISSIONS } });
         } else {
-          res.status(401).json({ success: false, message: "E-mail ou senha incorretos." });
+          res.status(401).json({ success: false, message: "E-mail ou senha incorretos. (Dica de primeiro acesso: E-mail: admin@exemplo.com / Senha: 123)" });
         }
       }
-    } catch(e) {
+    } catch(e: any) {
+      console.error("Erro no login:", e.message);
       if (email === "admin@exemplo.com" && password === "123") {
          res.json({ success: true, user: { id: "1", name: "Administrador", email: "admin@exemplo.com", role: "admin", permissions: ALL_PERMISSIONS } });
       } else {
-         res.status(401).json({ success: false, message: "E-mail ou senha incorretos." });
+         res.status(401).json({ success: false, message: "E-mail ou senha incorretos ou tabelas não criadas." });
       }
     }
   });
@@ -156,7 +167,7 @@ async function startServer() {
     try {
       const rows = await selectAll('forms');
       res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e: any) { res.json([]); }
   });
 
   app.post("/api/forms", async (req, res) => {
@@ -177,7 +188,7 @@ async function startServer() {
     try {
       const rows = await selectAll('contributors');
       res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e: any) { res.json([]); }
   });
 
   app.post("/api/contributors", async (req, res) => {
@@ -205,7 +216,7 @@ async function startServer() {
     try {
       const rows = await selectAll('health_wallets');
       res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e: any) { res.json([]); }
   });
 
   app.post("/api/health-wallets", async (req, res) => {
@@ -250,7 +261,7 @@ async function startServer() {
         };
       });
       res.json(objToCamel(parsedData));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e: any) { res.json([]); }
   });
 
   app.post("/api/complaints", async (req, res) => {
@@ -304,7 +315,7 @@ async function startServer() {
         return { ...row, ...extra };
       });
       res.json(objToCamel(parsedData));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e: any) { res.json([]); }
   });
 
   app.post("/api/production", async (req, res) => {
@@ -349,7 +360,7 @@ async function startServer() {
     try {
       const rows = await selectAll('printed_matter');
       res.json(objToCamel(rows));
-    } catch(e: any) { res.status(500).json({ error: e.message }); }
+    } catch(e: any) { res.json([]); }
   });
   
   app.post("/api/upload", upload.single("file"), (req, res) => {

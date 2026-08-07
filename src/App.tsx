@@ -513,43 +513,50 @@ export default function App() {
   const fetchUsers = async () => {
     const res = await fetch("/api/users");
     const data = await res.json();
-    setUsers(data);
+    if (res.ok && Array.isArray(data)) setUsers(data);
+    else console.error("Error fetching users:", data);
   };
 
   const fetchForms = async () => {
     const res = await fetch("/api/forms");
     const data = await res.json();
-    setForms(data);
+    if (res.ok && Array.isArray(data)) setForms(data);
+    else console.error("Error fetching forms:", data);
   };
 
   const fetchContributors = async () => {
     const res = await fetch("/api/contributors");
     const data = await res.json();
-    setContributors(data);
+    if (res.ok && Array.isArray(data)) setContributors(data);
+    else console.error("Error fetching contributors:", data);
   };
 
   const fetchHealthWallets = async () => {
     const res = await fetch("/api/health-wallets");
     const data = await res.json();
-    setHealthWallets(data);
+    if (res.ok && Array.isArray(data)) setHealthWallets(data);
+    else console.error("Error fetching health wallets:", data);
   };
 
   const fetchComplaints = async () => {
     const res = await fetch("/api/complaints");
     const data = await res.json();
-    setComplaints(data);
+    if (res.ok && Array.isArray(data)) setComplaints(data);
+    else console.error("Error fetching complaints:", data);
   };
 
   const fetchProduction = async () => {
     const res = await fetch("/api/production");
     const data = await res.json();
-    setProductionRecords(data);
+    if (res.ok && Array.isArray(data)) setProductionRecords(data);
+    else console.error("Error fetching production:", data);
   };
 
   const fetchPrintedMatter = async () => {
     const res = await fetch("/api/prints");
     const data = await res.json();
-    setPrintedMatter(data);
+    if (res.ok && Array.isArray(data)) setPrintedMatter(data);
+    else console.error("Error fetching printed matter:", data);
   };
 
   const addUser = async (e: FormEvent) => {

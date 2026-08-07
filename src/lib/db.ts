@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:frapQTareBPbGuCIMzPzVHedGFlmZCcy@yamabiko.proxy.rlwy.net:30812/railway';
+const connectionString = process.env.DATABASE_URL;
 
 export const pool = new Pool({
   connectionString,
